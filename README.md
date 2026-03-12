@@ -6,7 +6,7 @@ Chinese shorthand: `AI Agent 平台`
 
 ## Stage
 
-Stage 1: monorepo scaffold with executable web and API foundations.
+Stage 1: monorepo scaffold with executable web and API foundations plus first persisted task-request flow.
 
 ## Stack
 
@@ -29,10 +29,18 @@ Stage 1: monorepo scaffold with executable web and API foundations.
 
 ```bash
 pnpm install
+pnpm --filter @agora/api prisma:generate
+pnpm --filter @agora/api prisma:push
 pnpm dev
 pnpm lint
 pnpm typecheck
 ```
+
+## Local Database
+
+- local PostgreSQL is the current development system of record
+- API env file: `apps/api/.env`
+- example env file: `apps/api/.env.example`
 
 ## License And Provenance
 

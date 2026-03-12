@@ -32,3 +32,7 @@ Use:
 ## Product Fit
 
 This stack is chosen for an operator-facing AI Agent platform MVP, not for a hypothetical later-stage marketplace infrastructure problem.
+
+## Current Implementation Note
+
+The project now uses Prisma against a local PostgreSQL development database for persisted `TaskRequest` records.

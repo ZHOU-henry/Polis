@@ -1,10 +1,10 @@
 import Fastify from "fastify";
 import {
-  agentDefinitions,
-  findAgentBySlug,
   TaskRequestInputSchema
 } from "@agora/shared/domain";
+import { getAgentBySlug, listAgents, syncAgentDefinitions } from "./data/agents.js";
 import { createTaskRequest, listTaskRequests } from "./data/task-requests.js";
+import { prisma } from "./lib/prisma.js";
 import { badRequest, notFound } from "./lib/respond.js";
 
 const server = Fastify({
@@ -20,13 +20,13 @@ server.get("/health", async () => {
 
 server.get("/agents", async () => {
   return {
-    items: agentDefinitions
+    items: await listAgents()
   };
 });
 
 server.get("/agents/:slug", async (request, reply) => {
   const { slug } = request.params as { slug: string };
-  const agent = findAgentBySlug(slug);
+  const agent = await getAgentBySlug(slug);
 
   if (!agent) {
     return notFound(reply, "Agent not found");
@@ -39,7 +39,7 @@ server.get("/agents/:slug", async (request, reply) => {
 
 server.get("/task-requests", async () => {
   return {
-    items: listTaskRequests()
+    items: await listTaskRequests()
   };
 });
 
@@ -50,7 +50,7 @@ server.post("/task-requests", async (request, reply) => {
     return badRequest(reply, "Invalid task request", parsed.error.flatten());
   }
 
-  const record = createTaskRequest(parsed.data);
+  const record = await createTaskRequest(parsed.data);
 
   return reply.code(201).send({
     item: record
@@ -59,7 +59,16 @@ server.post("/task-requests", async (request, reply) => {
 
 const port = Number(process.env.PORT ?? 3001);
 
-server.listen({ port, host: "0.0.0.0" }).catch((error) => {
-  server.log.error(error);
-  process.exit(1);
-});
+async function start() {
+  await syncAgentDefinitions();
+
+  try {
+    await server.listen({ port, host: "0.0.0.0" });
+  } catch (error) {
+    server.log.error(error);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
+}
+
+void start();

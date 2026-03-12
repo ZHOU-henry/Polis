@@ -1,20 +1,28 @@
-import { randomUUID } from "node:crypto";
-import type { TaskRequestInput, TaskRequestRecord } from "@agora/shared/domain";
-
-const taskRequests: TaskRequestRecord[] = [];
+import type { TaskRequestInput } from "@agora/shared/domain";
+import { prisma } from "../lib/prisma.js";
 
 export function listTaskRequests() {
-  return taskRequests;
+  return prisma.taskRequest.findMany({
+    include: {
+      agent: true
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
 }
 
 export function createTaskRequest(input: TaskRequestInput) {
-  const record: TaskRequestRecord = {
-    ...input,
-    id: randomUUID(),
-    status: "submitted",
-    createdAt: new Date().toISOString()
-  };
-
-  taskRequests.unshift(record);
-  return record;
+  return prisma.taskRequest.create({
+    data: {
+      agentId: input.agentId,
+      title: input.title,
+      description: input.description,
+      contextNote: input.contextNote,
+      status: "submitted"
+    },
+    include: {
+      agent: true
+    }
+  });
 }
