@@ -1,0 +1,30 @@
+{
+  "name": "@agora/shared",
+  "private": true,
+  "type": "module",
+  "main": "./dist/domain.js",
+  "types": "./dist/domain.d.ts",
+  "exports": {
+    "./domain": {
+      "types": "./dist/domain.d.ts",
+      "default": "./dist/domain.js"
+    }
+  },
+  "scripts": {
+    "dev": "tsc -w -p tsconfig.json --preserveWatchOutput",
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/node": "^24.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.46.2",
+    "@typescript-eslint/parser": "^8.46.2",
+    "eslint": "^9.38.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -5,9 +5,11 @@ node_modules/
 dist/
 build/
 .next/
+.turbo/
 coverage/
 target/
 __pycache__/
 .venv/
 venv/
 *.log
+*.tsbuildinfo

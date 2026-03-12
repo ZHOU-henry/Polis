@@ -1,20 +1,23 @@
 # Agora - AI Agent Platform
 
-Open-source MVP for an AI Agent marketplace and operator workspace.
+Open-source MVP for an AI Agent platform and operator workspace.
 
 Chinese shorthand: `AI Agent 平台`
 
 ## Stage
 
-Stage 0: repo scaffold and product framing.
+Stage 1: monorepo scaffold with executable web and API foundations.
 
-## Goals
+## Stack
 
-- validate the first useful user journey
-- define a small but real marketplace MVP
-- create an operator-facing workspace for running and tracking agents
+- `pnpm workspaces`
+- `Turborepo`
+- `Next.js 16`
+- `Fastify`
+- `PostgreSQL`
+- `Prisma`
 
-## Structure
+## Workspace
 
 - `apps/web/`
 - `apps/api/`
@@ -22,11 +25,14 @@ Stage 0: repo scaffold and product framing.
 - `infra/`
 - `docs/`
 
-## Immediate Next Steps
+## Commands
 
-1. finalize MVP scope
-2. choose the first web and API stack
-3. wire the initial app skeleton
+```bash
+pnpm install
+pnpm dev
+pnpm lint
+pnpm typecheck
+```
 
 ## License And Provenance
 
