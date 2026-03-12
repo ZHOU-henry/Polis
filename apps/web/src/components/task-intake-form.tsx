@@ -1,0 +1,126 @@
+"use client";
+
+import { useState } from "react";
+import {
+  TaskRequestInputSchema,
+  type TaskRequestRecord
+} from "@agora/shared/domain";
+import { apiBaseUrl } from "../lib/api";
+
+type TaskIntakeFormProps = {
+  agentId: string;
+  agentName: string;
+};
+
+export function TaskIntakeForm({ agentId, agentName }: TaskIntakeFormProps) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [contextNote, setContextNote] = useState("");
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState<TaskRequestRecord | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    setSubmitted(null);
+
+    const parsed = TaskRequestInputSchema.safeParse({
+      agentId,
+      title,
+      description,
+      contextNote
+    });
+
+    if (!parsed.success) {
+      setError("Please complete the task form with a clear title and description.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch(`${apiBaseUrl}/task-requests`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(parsed.data)
+      });
+
+      const payload = (await response.json()) as {
+        item?: TaskRequestRecord;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.item) {
+        throw new Error(payload.error ?? "Task submission failed");
+      }
+
+      setSubmitted(payload.item);
+      setTitle("");
+      setDescription("");
+      setContextNote("");
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Task submission failed"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <section className="panel">
+      <h2>Submit A Task To {agentName}</h2>
+      <form className="form" onSubmit={handleSubmit}>
+        <label>
+          <span>Task title</span>
+          <input
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="Summarize the top risks in this workflow"
+          />
+        </label>
+
+        <label>
+          <span>Task description</span>
+          <textarea
+            value={description}
+            onChange={(event) => setDescription(event.target.value)}
+            rows={6}
+            placeholder="Describe the task, goal, and what a good result should look like."
+          />
+        </label>
+
+        <label>
+          <span>Optional context</span>
+          <textarea
+            value={contextNote}
+            onChange={(event) => setContextNote(event.target.value)}
+            rows={4}
+            placeholder="Add any useful project context or constraints."
+          />
+        </label>
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Submitting..." : "Submit task"}
+        </button>
+      </form>
+
+      {error ? <p className="error">{error}</p> : null}
+
+      {submitted ? (
+        <div className="receipt">
+          <h3>Task submitted</h3>
+          <p>
+            Request <code>{submitted.id}</code> is now <strong>{submitted.status}</strong>.
+          </p>
+          <p className="tagline">Created at {submitted.createdAt}</p>
+        </div>
+      ) : null}
+    </section>
+  );
+}

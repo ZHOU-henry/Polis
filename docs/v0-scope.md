@@ -24,3 +24,7 @@ Agora v0 is an **AI Agent Platform MVP**, not a full marketplace.
 First make agent usage understandable and auditable.
 
 Only then consider marketplace expansion.
+
+## Architecture Principle
+
+Keep the implementation small now, but do not hard-code assumptions that would block future platform growth.

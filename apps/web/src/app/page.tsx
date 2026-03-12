@@ -1,6 +1,9 @@
-import { sampleAgents } from "@agora/shared/domain";
+import Link from "next/link";
+import { getAgentCatalog } from "../lib/api";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const agents = await getAgentCatalog();
+
   return (
     <main className="page">
       <section className="hero">
@@ -25,11 +28,14 @@ export default function HomePage() {
       <section className="panel">
         <h2>Seed Agent Catalog</h2>
         <div className="grid">
-          {sampleAgents.map((agent) => (
+          {agents.map((agent) => (
             <article key={agent.id} className="card">
               <h3>{agent.name}</h3>
               <p>{agent.summary}</p>
               <p className="tagline">{agent.tags.join(" · ")}</p>
+              <Link href={`/agents/${agent.slug}`} className="cardlink">
+                Inspect and submit task
+              </Link>
             </article>
           ))}
         </div>
