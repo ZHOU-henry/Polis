@@ -37,9 +37,18 @@
 - run timeline
 - outputs
 - warnings
+- operator-accessible execution history
 
 ### Review
 
 - useful / not useful
 - review notes
 - rerun / escalate decision
+
+## Current Implementation Status
+
+- catalog list: implemented
+- agent detail: implemented
+- task intake: implemented
+- run detail: implemented
+- operator review: implemented as a first minimal verdict flow

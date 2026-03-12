@@ -100,6 +100,16 @@ Fields:
 - one `TaskRun` can have zero or one `ReviewDecision`
 - one `TaskRun` or `AgentDefinition` can have many `ProvenanceRecord`s
 
+## Current Persistence Status
+
+Persisted now:
+
+- `AgentDefinition`
+- `TaskRequest`
+- `TaskRun`
+- `RunEvent`
+- `ReviewDecision`
+
 ## Phase-1 Rule
 
 Keep the model centered on:

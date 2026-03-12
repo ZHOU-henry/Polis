@@ -3,7 +3,8 @@
 import { useState } from "react";
 import {
   TaskRequestInputSchema,
-  type TaskRequestRecord
+  TaskRequestDetailSchema,
+  type TaskRequestDetail
 } from "@agora/shared/domain";
 import { apiBaseUrl } from "../lib/api";
 
@@ -17,7 +18,7 @@ export function TaskIntakeForm({ agentId, agentName }: TaskIntakeFormProps) {
   const [description, setDescription] = useState("");
   const [contextNote, setContextNote] = useState("");
   const [error, setError] = useState("");
-  const [submitted, setSubmitted] = useState<TaskRequestRecord | null>(null);
+  const [submitted, setSubmitted] = useState<TaskRequestDetail | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -49,15 +50,17 @@ export function TaskIntakeForm({ agentId, agentName }: TaskIntakeFormProps) {
       });
 
       const payload = (await response.json()) as {
-        item?: TaskRequestRecord;
+        item?: unknown;
         error?: string;
       };
 
-      if (!response.ok || !payload.item) {
+      const parsedItem = TaskRequestDetailSchema.safeParse(payload.item);
+
+      if (!response.ok || !parsedItem.success) {
         throw new Error(payload.error ?? "Task submission failed");
       }
 
-      setSubmitted(payload.item);
+      setSubmitted(parsedItem.data);
       setTitle("");
       setDescription("");
       setContextNote("");
@@ -118,6 +121,13 @@ export function TaskIntakeForm({ agentId, agentName }: TaskIntakeFormProps) {
           <p>
             Request <code>{submitted.id}</code> is now <strong>{submitted.status}</strong>.
           </p>
+          {submitted.runs[0] ? (
+            <p>
+              <a className="cardlink" href={`/runs/${submitted.runs[0].id}`}>
+                Open run record
+              </a>
+            </p>
+          ) : null}
           <p className="tagline">Created at {submitted.createdAt}</p>
         </div>
       ) : null}

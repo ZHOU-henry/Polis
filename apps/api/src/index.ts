@@ -1,9 +1,18 @@
 import Fastify from "fastify";
 import {
+  ReviewDecisionInputSchema,
+  RunStatusUpdateInputSchema,
   TaskRequestInputSchema
 } from "@agora/shared/domain";
 import { getAgentBySlug, listAgents, syncAgentDefinitions } from "./data/agents.js";
-import { createTaskRequest, listTaskRequests } from "./data/task-requests.js";
+import {
+  createTaskRequest,
+  getTaskRequestById,
+  getTaskRunById,
+  listTaskRequests,
+  submitReviewDecision,
+  updateTaskRunStatus
+} from "./data/task-requests.js";
 import { prisma } from "./lib/prisma.js";
 import { badRequest, notFound } from "./lib/respond.js";
 
@@ -43,6 +52,19 @@ server.get("/task-requests", async () => {
   };
 });
 
+server.get("/task-requests/:id", async (request, reply) => {
+  const { id } = request.params as { id: string };
+  const taskRequest = await getTaskRequestById(id);
+
+  if (!taskRequest) {
+    return notFound(reply, "Task request not found");
+  }
+
+  return {
+    item: taskRequest
+  };
+});
+
 server.post("/task-requests", async (request, reply) => {
   const parsed = TaskRequestInputSchema.safeParse(request.body);
 
@@ -55,6 +77,57 @@ server.post("/task-requests", async (request, reply) => {
   return reply.code(201).send({
     item: record
   });
+});
+
+server.get("/task-runs/:id", async (request, reply) => {
+  const { id } = request.params as { id: string };
+  const taskRun = await getTaskRunById(id);
+
+  if (!taskRun) {
+    return notFound(reply, "Task run not found");
+  }
+
+  return {
+    item: taskRun
+  };
+});
+
+server.patch("/task-runs/:id/status", async (request, reply) => {
+  const { id } = request.params as { id: string };
+  const parsed = RunStatusUpdateInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid status update", parsed.error.flatten());
+  }
+
+  const taskRun = await updateTaskRunStatus(id, parsed.data);
+
+  if (!taskRun) {
+    return notFound(reply, "Task run not found");
+  }
+
+  return {
+    item: taskRun
+  };
+});
+
+server.post("/task-runs/:id/review", async (request, reply) => {
+  const { id } = request.params as { id: string };
+  const parsed = ReviewDecisionInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid review submission", parsed.error.flatten());
+  }
+
+  const taskRun = await submitReviewDecision(id, parsed.data);
+
+  if (!taskRun) {
+    return notFound(reply, "Task run not found");
+  }
+
+  return {
+    item: taskRun
+  };
 });
 
 const port = Number(process.env.PORT ?? 3001);

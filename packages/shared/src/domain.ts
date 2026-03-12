@@ -18,7 +18,6 @@ export type AgentDefinition = z.infer<typeof AgentDefinitionSchema>;
 
 export const TaskRequestStatusSchema = z.enum([
   "submitted",
-  "accepted",
   "running",
   "completed",
   "failed"
@@ -36,10 +35,99 @@ export type TaskRequestInput = z.infer<typeof TaskRequestInputSchema>;
 export const TaskRequestRecordSchema = TaskRequestInputSchema.extend({
   id: z.string(),
   status: TaskRequestStatusSchema,
-  createdAt: z.string()
+  createdAt: z.string(),
+  updatedAt: z.string()
 });
 
 export type TaskRequestRecord = z.infer<typeof TaskRequestRecordSchema>;
+
+export const TaskRunStatusSchema = z.enum([
+  "submitted",
+  "running",
+  "completed",
+  "failed"
+]);
+
+export const RunEventTypeSchema = z.enum([
+  "submitted",
+  "status_changed",
+  "review_submitted"
+]);
+
+export const ReviewVerdictSchema = z.enum([
+  "approved",
+  "needs_work",
+  "rejected"
+]);
+
+export type ReviewVerdict = z.infer<typeof ReviewVerdictSchema>;
+
+export const RunEventRecordSchema = z.object({
+  id: z.string(),
+  taskRunId: z.string(),
+  eventType: RunEventTypeSchema,
+  message: z.string(),
+  createdAt: z.string()
+});
+
+export type RunEventRecord = z.infer<typeof RunEventRecordSchema>;
+
+export const ReviewDecisionInputSchema = z.object({
+  verdict: ReviewVerdictSchema,
+  notes: z.string().max(1000).optional().default("")
+});
+
+export type ReviewDecisionInput = z.infer<typeof ReviewDecisionInputSchema>;
+
+export const ReviewDecisionRecordSchema = ReviewDecisionInputSchema.extend({
+  id: z.string(),
+  taskRunId: z.string(),
+  reviewedAt: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+
+export type ReviewDecisionRecord = z.infer<typeof ReviewDecisionRecordSchema>;
+
+export const RunStatusUpdateInputSchema = z.object({
+  status: TaskRunStatusSchema,
+  message: z.string().max(300).optional().default("")
+});
+
+export type RunStatusUpdateInput = z.infer<typeof RunStatusUpdateInputSchema>;
+export type TaskRunStatus = z.infer<typeof TaskRunStatusSchema>;
+
+export const TaskRunRecordSchema = z.object({
+  id: z.string(),
+  taskRequestId: z.string(),
+  status: TaskRunStatusSchema,
+  latestMessage: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  startedAt: z.string().nullable().optional(),
+  completedAt: z.string().nullable().optional()
+});
+
+export type TaskRunRecord = z.infer<typeof TaskRunRecordSchema>;
+
+export const TaskRequestDetailSchema = TaskRequestRecordSchema.extend({
+  agent: AgentDefinitionSchema,
+  runs: z.array(TaskRunRecordSchema)
+});
+
+export type TaskRequestDetail = z.infer<typeof TaskRequestDetailSchema>;
+
+export const TaskRunDetailSchema = TaskRunRecordSchema.extend({
+  taskRequest: TaskRequestRecordSchema,
+  agent: AgentDefinitionSchema,
+  events: z.array(RunEventRecordSchema),
+  reviewDecision: ReviewDecisionRecordSchema.nullable()
+});
+
+export type TaskRunDetail = z.infer<typeof TaskRunDetailSchema>;
+
+export const AgentDefinitionListSchema = z.array(AgentDefinitionSchema);
+export const TaskRequestDetailListSchema = z.array(TaskRequestDetailSchema);
 
 export const agentDefinitions: AgentDefinition[] = [
   {

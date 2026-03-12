@@ -1,6 +1,10 @@
 import {
   agentDefinitions,
+  AgentDefinitionListSchema,
   AgentDefinitionSchema,
+  TaskRequestDetailListSchema,
+  TaskRequestDetailSchema,
+  TaskRunDetailSchema,
   findAgentBySlug
 } from "@agora/shared/domain";
 
@@ -33,12 +37,9 @@ export async function getAgentCatalog() {
     return agentDefinitions;
   }
 
-  const parsed = payload.items
-    .map((item) => AgentDefinitionSchema.safeParse(item))
-    .filter((result) => result.success)
-    .map((result) => result.data);
+  const parsed = AgentDefinitionListSchema.safeParse(payload.items);
 
-  return parsed.length > 0 ? parsed : agentDefinitions;
+  return parsed.success && parsed.data.length > 0 ? parsed.data : agentDefinitions;
 }
 
 export async function getAgentDetail(slug: string) {
@@ -52,6 +53,45 @@ export async function getAgentDetail(slug: string) {
 
   const parsed = AgentDefinitionSchema.safeParse(payload.item);
   return parsed.success ? parsed.data : findAgentBySlug(slug);
+}
+
+export async function getTaskRequests() {
+  const payload = (await tryFetchJson("/task-requests")) as
+    | { items?: unknown[] }
+    | null;
+
+  if (!payload?.items) {
+    return [];
+  }
+
+  const parsed = TaskRequestDetailListSchema.safeParse(payload.items);
+  return parsed.success ? parsed.data : [];
+}
+
+export async function getTaskRequest(id: string) {
+  const payload = (await tryFetchJson(`/task-requests/${id}`)) as
+    | { item?: unknown }
+    | null;
+
+  if (!payload?.item) {
+    return null;
+  }
+
+  const parsed = TaskRequestDetailSchema.safeParse(payload.item);
+  return parsed.success ? parsed.data : null;
+}
+
+export async function getTaskRun(id: string) {
+  const payload = (await tryFetchJson(`/task-runs/${id}`)) as
+    | { item?: unknown }
+    | null;
+
+  if (!payload?.item) {
+    return null;
+  }
+
+  const parsed = TaskRunDetailSchema.safeParse(payload.item);
+  return parsed.success ? parsed.data : null;
 }
 
 export { apiBaseUrl };

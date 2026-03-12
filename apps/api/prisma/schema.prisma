@@ -33,4 +33,44 @@ model TaskRequest {
 
   agentId String
   agent   AgentDefinition @relation(fields: [agentId], references: [id], onDelete: Restrict)
+
+  runs TaskRun[]
+}
+
+model TaskRun {
+  id            String   @id @default(cuid())
+  status        String
+  latestMessage String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  startedAt     DateTime?
+  completedAt   DateTime?
+
+  taskRequestId String
+  taskRequest   TaskRequest @relation(fields: [taskRequestId], references: [id], onDelete: Cascade)
+
+  events         RunEvent[]
+  reviewDecision ReviewDecision?
+}
+
+model RunEvent {
+  id        String   @id @default(cuid())
+  eventType String
+  message   String
+  createdAt DateTime @default(now())
+
+  taskRunId String
+  taskRun   TaskRun @relation(fields: [taskRunId], references: [id], onDelete: Cascade)
+}
+
+model ReviewDecision {
+  id         String   @id @default(cuid())
+  verdict    String
+  notes      String?
+  reviewedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  taskRunId String  @unique
+  taskRun   TaskRun @relation(fields: [taskRunId], references: [id], onDelete: Cascade)
 }

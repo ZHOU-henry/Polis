@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { getAgentCatalog } from "../lib/api";
+import { getAgentCatalog, getTaskRequests } from "../lib/api";
 
 export default async function HomePage() {
   const agents = await getAgentCatalog();
+  const requests = await getTaskRequests();
 
   return (
     <main className="page">
@@ -38,6 +39,27 @@ export default async function HomePage() {
               </Link>
             </article>
           ))}
+        </div>
+      </section>
+
+      <section className="panel">
+        <h2>Recent Task Requests</h2>
+        <div className="timeline">
+          {requests.length === 0 ? (
+            <p>No task requests have been submitted yet.</p>
+          ) : (
+            requests.slice(0, 5).map((request) => (
+              <article key={request.id} className="timelineitem">
+                <p className="tagline">
+                  {request.agent.name} · {request.status}
+                </p>
+                <p>{request.title}</p>
+                <Link href={`/requests/${request.id}`} className="cardlink">
+                  View task request
+                </Link>
+              </article>
+            ))
+          )}
         </div>
       </section>
     </main>

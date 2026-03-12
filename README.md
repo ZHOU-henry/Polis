@@ -6,7 +6,7 @@ Chinese shorthand: `AI Agent 平台`
 
 ## Stage
 
-Stage 1: monorepo scaffold with executable web and API foundations plus first persisted task-request flow.
+Stage 1: executable monorepo with persisted task requests, first run record lifecycle, and operator review foundations.
 
 ## Stack
 
@@ -24,6 +24,15 @@ Stage 1: monorepo scaffold with executable web and API foundations plus first pe
 - `packages/shared/`
 - `infra/`
 - `docs/`
+
+## Current Product Slice
+
+- agent catalog
+- agent detail
+- task intake
+- persisted task requests
+- first run record lifecycle
+- first operator review flow
 
 ## Commands
 
