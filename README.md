@@ -63,6 +63,20 @@ In this mode:
 - write actions are blocked at the API layer
 - the UI shows a read-only preview banner and disables operator write controls
 
+## Preview Helpers
+
+```bash
+./scripts/start-preview.sh interactive
+./scripts/start-preview.sh readonly YOUR_PASSWORD
+./scripts/check-preview.sh
+./scripts/stop-preview.sh
+```
+
+See:
+
+- `docs/demo/local-preview.md`
+- `docs/demo/public-demo-checklist.md`
+
 ## Local Database
 
 - local PostgreSQL is the current development system of record

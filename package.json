@@ -10,7 +10,11 @@
     "format": "prettier --write .",
     "db:push": "pnpm --filter @agora/api prisma:push",
     "db:seed": "pnpm --filter @agora/api db:seed",
-    "db:reset": "pnpm --filter @agora/api db:reset"
+    "db:reset": "pnpm --filter @agora/api db:reset",
+    "preview:start": "./scripts/start-preview.sh interactive",
+    "preview:start:readonly": "./scripts/start-preview.sh readonly CHANGE_ME",
+    "preview:stop": "./scripts/stop-preview.sh",
+    "preview:check": "./scripts/check-preview.sh"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
