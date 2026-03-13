@@ -177,13 +177,6 @@ body {
   color: #7c2d12;
 }
 
-.provenance {
-  margin: 0 0 8px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #7c2d12;
-}
-
 .form {
   display: grid;
   gap: 16px;
