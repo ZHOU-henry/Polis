@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import type {
   AgentDefinition,
   TaskRequestDetail,
@@ -5,61 +6,11 @@ import type {
   TaskRunRecord
 } from "@agora/shared/domain";
 
-type DbAgent = {
-  id: string;
-  slug: string;
-  name: string;
-  summary: string;
-  description: string;
-  provenanceStatus: string;
-  provenanceSummary: string;
-  tags: string[];
-  constraints: string[];
-  trustSignals: string[];
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type DbTaskRequest = {
-  id: string;
-  title: string;
-  description: string;
-  contextNote: string | null;
-  status: string;
-  createdAt: Date;
-  updatedAt: Date;
-  agentId: string;
-};
-
-type DbTaskRun = {
-  id: string;
-  taskRequestId: string;
-  status: string;
-  latestMessage: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  startedAt: Date | null;
-  completedAt: Date | null;
-};
-
-type DbRunEvent = {
-  id: string;
-  taskRunId: string;
-  eventType: string;
-  message: string;
-  createdAt: Date;
-};
-
-type DbReviewDecision = {
-  id: string;
-  taskRunId: string;
-  verdict: string;
-  notes: string | null;
-  reviewedAt: Date;
-  createdAt: Date;
-  updatedAt: Date;
-};
+type DbAgent = Prisma.AgentDefinitionGetPayload<Record<string, never>>;
+type DbTaskRequest = Prisma.TaskRequestGetPayload<Record<string, never>>;
+type DbTaskRun = Prisma.TaskRunGetPayload<Record<string, never>>;
+type DbRunEvent = Prisma.RunEventGetPayload<Record<string, never>>;
+type DbReviewDecision = Prisma.ReviewDecisionGetPayload<Record<string, never>>;
 
 export function serializeAgentDefinition(agent: DbAgent): AgentDefinition {
   return {
