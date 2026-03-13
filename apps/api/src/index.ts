@@ -15,7 +15,7 @@ import {
   updateTaskRunStatus
 } from "./data/task-requests.js";
 import { prisma } from "./lib/prisma.js";
-import { badRequest, notFound } from "./lib/respond.js";
+import { badRequest, conflict, notFound } from "./lib/respond.js";
 
 const server = Fastify({
   logger: true
@@ -113,6 +113,10 @@ server.patch("/task-runs/:id/status", async (request, reply) => {
     return notFound(reply, "Task run not found");
   }
 
+  if ("error" in taskRun) {
+    return conflict(reply, "Invalid run transition", taskRun);
+  }
+
   return {
     item: taskRun
   };
@@ -130,6 +134,10 @@ server.post("/task-runs/:id/review", async (request, reply) => {
 
   if (!taskRun) {
     return notFound(reply, "Task run not found");
+  }
+
+  if ("error" in taskRun) {
+    return conflict(reply, "Review not allowed for current run state", taskRun);
   }
 
   return {

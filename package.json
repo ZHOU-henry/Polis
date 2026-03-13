@@ -7,7 +7,10 @@
     "dev": "pnpm --filter @agora/shared build && turbo run dev --parallel",
     "lint": "turbo run lint",
     "typecheck": "pnpm --filter @agora/api prisma:generate && turbo run typecheck",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "db:push": "pnpm --filter @agora/api prisma:push",
+    "db:seed": "pnpm --filter @agora/api db:seed",
+    "db:reset": "pnpm --filter @agora/api db:reset"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

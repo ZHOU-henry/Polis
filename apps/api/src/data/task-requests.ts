@@ -5,6 +5,7 @@ import {
   type RunStatusUpdateInput,
   type TaskRequestInput
 } from "@agora/shared/domain";
+import { canReviewRun, canTransitionRun } from "../lib/run-state.js";
 import { prisma } from "../lib/prisma.js";
 import {
   serializeTaskRequestDetail,
@@ -151,11 +152,21 @@ export async function listTaskRuns(rawFilters: unknown = {}) {
       reviewDecision: true
     },
     orderBy: {
-      createdAt: "desc"
+      createdAt: filters.sort === "oldest" ? "asc" : "desc"
     }
   });
 
-  return rows.map(serializeTaskRunSummary);
+  const serialized = rows.map(serializeTaskRunSummary);
+
+  if (filters.sort === "review-priority") {
+    return serialized.sort((a, b) => {
+      const aPending = a.reviewDecision === null ? 1 : 0;
+      const bPending = b.reviewDecision === null ? 1 : 0;
+      return bPending - aPending;
+    });
+  }
+
+  return serialized;
 }
 
 export async function updateTaskRunStatus(
@@ -169,6 +180,13 @@ export async function updateTaskRunStatus(
 
     if (!existing) {
       return null;
+    }
+
+    if (!canTransitionRun(existing.status, input.status)) {
+      return {
+        error: "INVALID_TRANSITION" as const,
+        currentStatus: existing.status
+      };
     }
 
     const now = new Date();
@@ -239,6 +257,13 @@ export async function submitReviewDecision(
 
     if (!existing) {
       return null;
+    }
+
+    if (!canReviewRun(existing.status)) {
+      return {
+        error: "REVIEW_NOT_ALLOWED" as const,
+        currentStatus: existing.status
+      };
     }
 
     await tx.reviewDecision.upsert({

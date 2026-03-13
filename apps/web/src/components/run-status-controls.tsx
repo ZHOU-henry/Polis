@@ -70,7 +70,12 @@ export function RunStatusControls({ initialRun }: RunStatusControlsProps) {
       const parsedItem = TaskRunDetailSchema.safeParse(payload.item);
 
       if (!response.ok || !parsedItem.success) {
-        throw new Error(payload.error ?? "Run status update failed");
+        throw new Error(
+          payload.error ??
+            ("details" in payload && typeof payload.details === "object"
+              ? JSON.stringify(payload.details)
+              : "Run status update failed")
+        );
       }
 
       setRun(parsedItem.data);

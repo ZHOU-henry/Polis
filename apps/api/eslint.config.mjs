@@ -12,7 +12,8 @@ export default [
         project: "./tsconfig.json"
       },
       globals: {
-        process: "readonly"
+        process: "readonly",
+        console: "readonly"
       }
     },
     plugins: {

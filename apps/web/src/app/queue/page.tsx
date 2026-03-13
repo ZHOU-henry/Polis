@@ -6,6 +6,7 @@ type QueuePageProps = {
     status?: "submitted" | "running" | "completed" | "failed";
     reviewState?: "pending" | "reviewed";
     agentSlug?: string;
+    sort?: "newest" | "oldest" | "review-priority";
   }>;
 };
 
@@ -53,6 +54,9 @@ export default async function QueuePage({ searchParams }: QueuePageProps) {
           </Link>
           <Link href="/queue?agentSlug=athena" className="filterchip">
             athena
+          </Link>
+          <Link href="/queue?sort=review-priority" className="filterchip">
+            review priority
           </Link>
         </div>
       </section>

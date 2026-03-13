@@ -152,7 +152,8 @@ export const TaskRunSummaryListSchema = z.array(TaskRunSummarySchema);
 export const TaskRunListQuerySchema = z.object({
   agentSlug: z.string().optional(),
   status: TaskRunStatusSchema.optional(),
-  reviewState: z.enum(["pending", "reviewed"]).optional()
+  reviewState: z.enum(["pending", "reviewed"]).optional(),
+  sort: z.enum(["newest", "oldest", "review-priority"]).optional()
 });
 
 export const agentDefinitions: AgentDefinition[] = [

@@ -55,7 +55,12 @@ export function ReviewDecisionForm({ initialRun }: ReviewDecisionFormProps) {
       const parsedItem = TaskRunDetailSchema.safeParse(payload.item);
 
       if (!response.ok || !parsedItem.success) {
-        throw new Error(payload.error ?? "Review submission failed");
+        throw new Error(
+          payload.error ??
+            ("details" in payload && typeof payload.details === "object"
+              ? JSON.stringify(payload.details)
+              : "Review submission failed")
+        );
       }
 
       setRun(parsedItem.data);

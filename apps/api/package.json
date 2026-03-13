@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "db:seed": "tsx src/dev/seed.ts",
+    "db:reset": "tsx src/dev/reset.ts"
   },
   "dependencies": {
     "@agora/shared": "workspace:*",

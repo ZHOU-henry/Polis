@@ -12,3 +12,10 @@ export function badRequest(reply: FastifyReply, message: string, details?: unkno
     details
   });
 }
+
+export function conflict(reply: FastifyReply, message: string, details?: unknown) {
+  return reply.code(409).send({
+    error: message,
+    details
+  });
+}
