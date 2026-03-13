@@ -251,6 +251,36 @@ body {
   color: var(--muted);
 }
 
+.codeblock {
+  overflow: auto;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.8);
+  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.filterrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filterchip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+}
+
 .stats {
   display: flex;
   gap: 12px;

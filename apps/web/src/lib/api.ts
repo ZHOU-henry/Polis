@@ -5,6 +5,7 @@ import {
   TaskRequestDetailListSchema,
   TaskRequestDetailSchema,
   TaskRunDetailSchema,
+  TaskRunListQuerySchema,
   TaskRunSummaryListSchema,
   findAgentBySlug
 } from "@agora/shared/domain";
@@ -95,8 +96,17 @@ export async function getTaskRun(id: string) {
   return parsed.success ? parsed.data : null;
 }
 
-export async function getTaskRuns() {
-  const payload = (await tryFetchJson("/task-runs")) as
+export async function getTaskRuns(rawQuery: unknown = {}) {
+  const query = TaskRunListQuerySchema.parse(rawQuery);
+  const params = new URLSearchParams();
+
+  if (query.agentSlug) params.set("agentSlug", query.agentSlug);
+  if (query.status) params.set("status", query.status);
+  if (query.reviewState) params.set("reviewState", query.reviewState);
+
+  const suffix = params.size > 0 ? `?${params.toString()}` : "";
+
+  const payload = (await tryFetchJson(`/task-runs${suffix}`)) as
     | { items?: unknown[] }
     | null;
 

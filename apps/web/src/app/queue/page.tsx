@@ -1,9 +1,18 @@
 import Link from "next/link";
 import { getTaskRequests, getTaskRuns } from "../../lib/api";
 
-export default async function QueuePage() {
+type QueuePageProps = {
+  searchParams?: Promise<{
+    status?: "submitted" | "running" | "completed" | "failed";
+    reviewState?: "pending" | "reviewed";
+    agentSlug?: string;
+  }>;
+};
+
+export default async function QueuePage({ searchParams }: QueuePageProps) {
+  const filters = (await searchParams) ?? {};
   const requests = await getTaskRequests();
-  const runs = await getTaskRuns();
+  const runs = await getTaskRuns(filters);
 
   const activeRuns = runs.filter(
     (run) => run.status === "submitted" || run.status === "running"
@@ -28,6 +37,27 @@ export default async function QueuePage() {
       </section>
 
       <section className="panel">
+        <h2>Filters</h2>
+        <div className="filterrow">
+          <Link href="/queue" className="filterchip">
+            all
+          </Link>
+          <Link href="/queue?status=running" className="filterchip">
+            running
+          </Link>
+          <Link href="/queue?status=completed" className="filterchip">
+            completed
+          </Link>
+          <Link href="/queue?reviewState=pending" className="filterchip">
+            awaiting review
+          </Link>
+          <Link href="/queue?agentSlug=athena" className="filterchip">
+            athena
+          </Link>
+        </div>
+      </section>
+
+      <section className="panel">
         <h2>Review Queue</h2>
         <div className="timeline">
           {reviewQueue.length === 0 ? (
@@ -39,6 +69,7 @@ export default async function QueuePage() {
                   {run.agent.name} · {run.status}
                 </p>
                 <p>{run.taskTitle}</p>
+                <p>{run.resultSummary || "No result summary yet."}</p>
                 <Link href={`/runs/${run.id}`} className="cardlink">
                   Review run
                 </Link>

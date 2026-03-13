@@ -1,7 +1,9 @@
-import type {
-  ReviewDecisionInput,
-  RunStatusUpdateInput,
-  TaskRequestInput
+import { Prisma } from "@prisma/client";
+import {
+  TaskRunListQuerySchema,
+  type ReviewDecisionInput,
+  type RunStatusUpdateInput,
+  type TaskRequestInput
 } from "@agora/shared/domain";
 import { prisma } from "../lib/prisma.js";
 import {
@@ -9,6 +11,28 @@ import {
   serializeTaskRunDetail,
   serializeTaskRunSummary
 } from "../lib/serialize.js";
+
+function normalizeResultPayload(
+  payload: RunStatusUpdateInput["resultPayload"] | DbJsonLike
+) {
+  if (payload === undefined) {
+    return undefined;
+  }
+
+  if (payload === null) {
+    return Prisma.JsonNull;
+  }
+
+  return payload as Prisma.InputJsonValue;
+}
+
+type DbJsonLike =
+  | string
+  | number
+  | boolean
+  | Record<string, unknown>
+  | Prisma.JsonArray
+  | null;
 
 export async function listTaskRequests() {
   const rows = await prisma.taskRequest.findMany({
@@ -99,8 +123,25 @@ export async function getTaskRunById(id: string) {
   return row ? serializeTaskRunDetail(row) : null;
 }
 
-export async function listTaskRuns() {
+export async function listTaskRuns(rawFilters: unknown = {}) {
+  const filters = TaskRunListQuerySchema.parse(rawFilters);
   const rows = await prisma.taskRun.findMany({
+    where: {
+      status: filters.status,
+      taskRequest: filters.agentSlug
+        ? {
+            agent: {
+              slug: filters.agentSlug
+            }
+          }
+        : undefined,
+      reviewDecision:
+        filters.reviewState === "pending"
+          ? null
+          : filters.reviewState === "reviewed"
+            ? { isNot: null }
+            : undefined
+    },
     include: {
       taskRequest: {
         include: {
@@ -136,6 +177,12 @@ export async function updateTaskRunStatus(
       data: {
         status: input.status,
         latestMessage: input.message || existing.latestMessage,
+        resultSummary: input.resultSummary || existing.resultSummary,
+        resultPayload: normalizeResultPayload(
+          input.resultPayload !== undefined
+            ? input.resultPayload
+            : ((existing.resultPayload as DbJsonLike | undefined) ?? undefined)
+        ),
         startedAt:
           input.status === "running" ? existing.startedAt ?? now : existing.startedAt,
         completedAt:

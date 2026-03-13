@@ -35,6 +35,8 @@ Stage 1: executable monorepo with persisted task requests, first run record life
 - first operator review flow
 - operator queue
 - provenance visibility for seeded agents
+- result payload display
+- queue filters for review state and status
 
 ## Commands
 

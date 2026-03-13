@@ -38,6 +38,8 @@
 - outputs
 - warnings
 - operator-accessible execution history
+- structured result summary
+- structured result payload
 
 ### Review
 
@@ -50,6 +52,7 @@
 - operator queue for active work
 - review queue for completed but unreviewed runs
 - recent request visibility
+- filter by status, review state, or agent
 
 ## Current Implementation Status
 
@@ -60,3 +63,4 @@
 - operator review: implemented as a first minimal verdict flow
 - operator queue: implemented
 - provenance display: implemented as a first seeded-source visibility layer
+- result payload: implemented as a first structured execution output

@@ -18,6 +18,8 @@ type RunStatusControlsProps = {
 export function RunStatusControls({ initialRun }: RunStatusControlsProps) {
   const [run, setRun] = useState(initialRun);
   const [message, setMessage] = useState("");
+  const [resultSummary, setResultSummary] = useState("");
+  const [resultPayloadText, setResultPayloadText] = useState("{}");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,9 +27,24 @@ export function RunStatusControls({ initialRun }: RunStatusControlsProps) {
     setError("");
     setIsSubmitting(true);
 
+    let parsedPayload: Record<string, unknown> | null = null;
+
+    try {
+      parsedPayload =
+        resultPayloadText.trim().length > 0
+          ? (JSON.parse(resultPayloadText) as Record<string, unknown>)
+          : null;
+    } catch {
+      setError("Result payload must be valid JSON.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const parsed = RunStatusUpdateInputSchema.safeParse({
       status,
-      message
+      message,
+      resultSummary,
+      resultPayload: parsedPayload
     });
 
     if (!parsed.success) {
@@ -58,6 +75,7 @@ export function RunStatusControls({ initialRun }: RunStatusControlsProps) {
 
       setRun(parsedItem.data);
       setMessage("");
+      setResultSummary("");
     } catch (updateError) {
       setError(
         updateError instanceof Error ? updateError.message : "Run status update failed"
@@ -77,6 +95,24 @@ export function RunStatusControls({ initialRun }: RunStatusControlsProps) {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           placeholder="Add an execution note"
+        />
+      </label>
+      <label className="stack">
+        <span>Result summary</span>
+        <textarea
+          value={resultSummary}
+          onChange={(event) => setResultSummary(event.target.value)}
+          rows={3}
+          placeholder="Capture the operator-facing outcome of this run."
+        />
+      </label>
+      <label className="stack">
+        <span>Result payload (JSON)</span>
+        <textarea
+          value={resultPayloadText}
+          onChange={(event) => setResultPayloadText(event.target.value)}
+          rows={6}
+          placeholder='{"summary":"Task completed","confidence":"medium"}'
         />
       </label>
       <div className="buttonrow">

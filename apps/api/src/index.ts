@@ -93,9 +93,9 @@ server.get("/task-runs/:id", async (request, reply) => {
   };
 });
 
-server.get("/task-runs", async () => {
+server.get("/task-runs", async (request) => {
   return {
-    items: await listTaskRuns()
+    items: await listTaskRuns(request.query)
   };
 });
 

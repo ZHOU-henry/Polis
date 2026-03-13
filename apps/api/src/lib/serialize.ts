@@ -34,6 +34,11 @@ export function serializeTaskRunRecord(run: DbTaskRun): TaskRunRecord {
     taskRequestId: run.taskRequestId,
     status: run.status as TaskRunRecord["status"],
     latestMessage: run.latestMessage,
+    resultSummary: run.resultSummary,
+    resultPayload:
+      run.resultPayload && typeof run.resultPayload === "object"
+        ? (run.resultPayload as Record<string, unknown>)
+        : null,
     createdAt: run.createdAt.toISOString(),
     updatedAt: run.updatedAt.toISOString(),
     startedAt: run.startedAt?.toISOString() ?? null,

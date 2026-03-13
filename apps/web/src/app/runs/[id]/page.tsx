@@ -36,6 +36,18 @@ export default async function RunDetailPage({ params }: RunDetailPageProps) {
       <ReviewDecisionForm initialRun={run} />
 
       <section className="panel">
+        <h2>Execution Result</h2>
+        <p>{run.resultSummary || "No result summary recorded yet."}</p>
+        {run.resultPayload ? (
+          <pre className="codeblock">
+            {JSON.stringify(run.resultPayload, null, 2)}
+          </pre>
+        ) : (
+          <p className="small">No structured result payload recorded yet.</p>
+        )}
+      </section>
+
+      <section className="panel">
         <h2>Execution Timeline</h2>
         <div className="timeline">
           {run.events.map((event) => (

@@ -77,6 +77,13 @@ Fields:
 - `notes`
 - `reviewedAt`
 
+### Result Payload
+
+Represented on `TaskRun` as:
+
+- `resultSummary`
+- `resultPayload`
+
 ### ProvenanceRecord
 
 Represents the source and trust metadata of reused or referenced material.

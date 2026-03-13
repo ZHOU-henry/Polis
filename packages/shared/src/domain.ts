@@ -98,7 +98,9 @@ export type ReviewDecisionRecord = z.infer<typeof ReviewDecisionRecordSchema>;
 
 export const RunStatusUpdateInputSchema = z.object({
   status: TaskRunStatusSchema,
-  message: z.string().max(300).optional().default("")
+  message: z.string().max(300).optional().default(""),
+  resultSummary: z.string().max(1000).optional().default(""),
+  resultPayload: z.record(z.string(), z.unknown()).optional().nullable()
 });
 
 export type RunStatusUpdateInput = z.infer<typeof RunStatusUpdateInputSchema>;
@@ -109,6 +111,8 @@ export const TaskRunRecordSchema = z.object({
   taskRequestId: z.string(),
   status: TaskRunStatusSchema,
   latestMessage: z.string().nullable().optional(),
+  resultSummary: z.string().nullable().optional(),
+  resultPayload: z.record(z.string(), z.unknown()).nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
   startedAt: z.string().nullable().optional(),
@@ -144,6 +148,12 @@ export type TaskRunSummary = z.infer<typeof TaskRunSummarySchema>;
 export const AgentDefinitionListSchema = z.array(AgentDefinitionSchema);
 export const TaskRequestDetailListSchema = z.array(TaskRequestDetailSchema);
 export const TaskRunSummaryListSchema = z.array(TaskRunSummarySchema);
+
+export const TaskRunListQuerySchema = z.object({
+  agentSlug: z.string().optional(),
+  status: TaskRunStatusSchema.optional(),
+  reviewState: z.enum(["pending", "reviewed"]).optional()
+});
 
 export const agentDefinitions: AgentDefinition[] = [
   {
