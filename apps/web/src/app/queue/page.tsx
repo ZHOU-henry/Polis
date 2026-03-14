@@ -139,6 +139,7 @@ export default async function QueuePage({ searchParams }: QueuePageProps) {
                     {titleizeToken(run.status)}
                   </span>
                 </div>
+                <p className="tagline">builder / {run.agent.provider.name}</p>
                 <p>{run.taskTitle}</p>
                 <p>{run.resultSummary || "No result summary yet."}</p>
                 <p className="timestamp">{formatTimestamp(run.updatedAt)}</p>
@@ -168,6 +169,7 @@ export default async function QueuePage({ searchParams }: QueuePageProps) {
                     {titleizeToken(run.status)}
                   </span>
                 </div>
+                <p className="tagline">builder / {run.agent.provider.name}</p>
                 <p>{run.taskTitle}</p>
                 <p>{run.latestMessage || "No latest message yet."}</p>
                 <p className="timestamp">{formatTimestamp(run.updatedAt)}</p>
@@ -197,6 +199,7 @@ export default async function QueuePage({ searchParams }: QueuePageProps) {
                     {titleizeToken(request.status)}
                   </span>
                 </div>
+                <p className="tagline">builder / {request.agent.provider.name}</p>
                 <p>{request.title}</p>
                 <p className="timestamp">{formatTimestamp(request.createdAt)}</p>
                 <Link href={`/requests/${request.id}`} className="cardlink">

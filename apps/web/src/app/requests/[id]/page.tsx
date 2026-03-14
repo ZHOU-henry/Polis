@@ -31,11 +31,20 @@ export default async function TaskRequestPage({ params }: TaskRequestPageProps) 
             <span className="statuspill tone-neutral">
               agent / {taskRequest.agent.name}
             </span>
+            <span className="statuspill tone-neutral">
+              builder / {taskRequest.agent.provider.name}
+            </span>
             <span className="datachip">{formatTimestamp(taskRequest.createdAt)}</span>
           </div>
           <div className="buttonrow">
             <Link href={`/agents/${taskRequest.agent.slug}`} className="actionlink">
               Back to agent
+            </Link>
+            <Link
+              href={`/providers/${taskRequest.agent.provider.slug}`}
+              className="actionlink"
+            >
+              Inspect builder
             </Link>
           </div>
         </div>
@@ -55,11 +64,30 @@ export default async function TaskRequestPage({ params }: TaskRequestPageProps) 
               <span>provenance</span>
               <strong>{humanizeToken(taskRequest.agent.provenanceStatus)}</strong>
             </article>
+            <article className="signalitem">
+              <span>builder type</span>
+              <strong>{humanizeToken(taskRequest.agent.provider.type)}</strong>
+            </article>
           </div>
         </aside>
       </section>
 
       <div className="surface-grid surface-grid-two">
+        <section className="panel">
+          <div className="sectionhead">
+            <p className="eyebrow">Builder</p>
+            <h2>Supply-side owner</h2>
+          </div>
+          <p className="tagline">{taskRequest.agent.provider.name}</p>
+          <p>{taskRequest.agent.provider.summary}</p>
+          <Link
+            href={`/providers/${taskRequest.agent.provider.slug}`}
+            className="cardlink"
+          >
+            Open builder profile
+          </Link>
+        </section>
+
         <section className="panel">
           <div className="sectionhead">
             <p className="eyebrow">Context</p>
@@ -92,6 +120,7 @@ export default async function TaskRequestPage({ params }: TaskRequestPageProps) 
                   {titleizeToken(run.status)}
                 </span>
               </div>
+              <p className="tagline">builder / {taskRequest.agent.provider.name}</p>
               <p>{run.latestMessage || "No message recorded yet."}</p>
               <p className="timestamp">{formatTimestamp(run.createdAt)}</p>
               <Link href={`/runs/${run.id}`} className="cardlink">

@@ -32,11 +32,17 @@ export default async function RunDetailPage({ params }: RunDetailPageProps) {
               {titleizeToken(run.status)}
             </span>
             <span className="statuspill tone-neutral">agent / {run.agent.name}</span>
+            <span className="statuspill tone-neutral">
+              builder / {run.agent.provider.name}
+            </span>
             <span className="datachip">events / {run.events.length}</span>
           </div>
           <div className="buttonrow">
             <Link href={`/requests/${run.taskRequest.id}`} className="actionlink">
               Back to task request
+            </Link>
+            <Link href={`/providers/${run.agent.provider.slug}`} className="actionlink">
+              Inspect builder
             </Link>
           </div>
         </div>
@@ -60,11 +66,27 @@ export default async function RunDetailPage({ params }: RunDetailPageProps) {
                   : "Pending"}
               </strong>
             </article>
+            <article className="signalitem">
+              <span>builder type</span>
+              <strong>{humanizeToken(run.agent.provider.type)}</strong>
+            </article>
           </div>
         </aside>
       </section>
 
       <div className="surface-grid surface-grid-two">
+        <section className="panel">
+          <div className="sectionhead">
+            <p className="eyebrow">Builder</p>
+            <h2>Supply-side owner</h2>
+          </div>
+          <p className="tagline">{run.agent.provider.name}</p>
+          <p>{run.agent.provider.summary}</p>
+          <Link href={`/providers/${run.agent.provider.slug}`} className="cardlink">
+            Open builder profile
+          </Link>
+        </section>
+
         <RunStatusControls initialRun={run} />
         <ReviewDecisionForm initialRun={run} />
       </div>
