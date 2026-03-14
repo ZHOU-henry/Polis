@@ -44,6 +44,7 @@ Stage 1: executable monorepo with persisted task requests, first run record life
 - seeded four-agent catalog aligned to Athena, Hermes, Hephaestus, and Themis
 - seeded builder/provider profile layer for the launch cohort
 - seeded demand board and builder response layer
+- shortlist / accept / decline workflow on builder responses
 - bilingual Chinese / English product experience
 - industry showcase visuals for manufacturing, quality, warehouse, and maintenance scenarios
 - agent catalog
@@ -61,6 +62,7 @@ Stage 1: executable monorepo with persisted task requests, first run record life
 
 - `Demand Board`: customer demand is visible to the builder side instead of staying trapped inside one catalog route
 - `Builder Responses`: providers can respond to concrete demand with an offer, approach, and timeline
+- `Response Decisions`: the platform can now shortlist, accept, or decline builder responses instead of leaving them as static cards
 - `Bilingual UX`: Chinese is now the default public-facing experience, with English preserved for parity
 - `Industry-first Visuals`: the GitHub and web surfaces now share the same scene language across manufacturing, quality, warehouse, and maintenance workflows
 

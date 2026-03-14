@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import {
   DemandResponseInputSchema,
+  DemandResponseStatusUpdateInputSchema,
   ReviewDecisionInputSchema,
   RunStatusUpdateInputSchema,
   TaskRequestInputSchema
@@ -26,6 +27,7 @@ import {
   listTaskRequests,
   submitDemandResponse,
   submitReviewDecision,
+  updateDemandResponseStatus,
   updateTaskRunStatus
 } from "./data/task-requests.js";
 import { prisma } from "./lib/prisma.js";
@@ -165,6 +167,29 @@ server.post("/task-requests/:id/responses", async (request, reply) => {
   return reply.code(201).send({
     item: result
   });
+});
+
+server.patch("/demand-responses/:id/status", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = DemandResponseStatusUpdateInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid demand response status update", parsed.error.flatten());
+  }
+
+  const result = await updateDemandResponseStatus(id, parsed.data);
+
+  if (!result) {
+    return notFound(reply, "Demand response not found");
+  }
+
+  return {
+    item: result
+  };
 });
 
 server.get("/task-runs/:id", async (request, reply) => {

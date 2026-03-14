@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import {
+  type DemandResponseStatusUpdateInput,
   type DemandResponseInput,
   TaskRunListQuerySchema,
   type ReviewDecisionInput,
@@ -322,6 +323,52 @@ export async function submitDemandResponse(
   });
 
   return detail ? serializeTaskRequestDetail(detail) : row;
+}
+
+export async function updateDemandResponseStatus(
+  id: string,
+  input: DemandResponseStatusUpdateInput
+) {
+  const existing = await prisma.demandResponse.findUnique({
+    where: { id }
+  });
+
+  if (!existing) {
+    return null;
+  }
+
+  await prisma.demandResponse.update({
+    where: { id },
+    data: {
+      status: input.status
+    }
+  });
+
+  const detail = await prisma.taskRequest.findUnique({
+    where: { id: existing.taskRequestId },
+    include: {
+      agent: {
+        include: {
+          provider: true
+        }
+      },
+      runs: {
+        orderBy: {
+          createdAt: "desc"
+        }
+      },
+      responses: {
+        include: {
+          provider: true
+        },
+        orderBy: {
+          createdAt: "desc"
+        }
+      }
+    }
+  });
+
+  return detail ? serializeTaskRequestDetail(detail) : null;
 }
 
 export async function updateTaskRunStatus(

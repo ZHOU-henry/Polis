@@ -95,6 +95,14 @@ export const DemandResponseInputSchema = z.object({
 
 export type DemandResponseInput = z.infer<typeof DemandResponseInputSchema>;
 
+export const DemandResponseStatusUpdateInputSchema = z.object({
+  status: DemandResponseStatusSchema
+});
+
+export type DemandResponseStatusUpdateInput = z.infer<
+  typeof DemandResponseStatusUpdateInputSchema
+>;
+
 export const DemandResponseRecordSchema = DemandResponseInputSchema.extend({
   id: z.string(),
   taskRequestId: z.string(),
