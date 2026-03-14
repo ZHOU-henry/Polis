@@ -39,7 +39,20 @@ export async function getAgentById(id: string) {
 
 export async function syncAgentDefinitions() {
   for (const agent of agentDefinitions) {
-    const { provider, ...agentData } = agent;
+    const agentData = {
+      id: agent.id,
+      slug: agent.slug,
+      name: agent.name,
+      summary: agent.summary,
+      description: agent.description,
+      providerId: agent.providerId,
+      provenanceStatus: agent.provenanceStatus,
+      provenanceSummary: agent.provenanceSummary,
+      tags: agent.tags,
+      constraints: agent.constraints,
+      trustSignals: agent.trustSignals,
+      status: agent.status
+    };
 
     await prisma.agentDefinition.upsert({
       where: { id: agent.id },
