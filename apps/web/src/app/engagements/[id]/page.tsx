@@ -73,7 +73,10 @@ export default async function EngagementDetailPage({
           feedbackEmpty: "当前还没有现场反馈记录。",
           incidentTitle: "问题工单",
           incidentEmpty: "当前还没有问题工单。",
-          runTitle: "交付 run"
+          runTitle: "交付 run",
+          quoteTitle: "报价与商业推进",
+          quoteEmpty: "当前还没有正式报价项。",
+          commercialDecisionEmpty: "客户还没有提交商业回应。"
         }
       : {
           eyebrow: "Engagement",
@@ -101,7 +104,10 @@ export default async function EngagementDetailPage({
           feedbackEmpty: "No field feedback exists yet.",
           incidentTitle: "Incident tickets",
           incidentEmpty: "No incident tickets exist yet.",
-          runTitle: "Delivery runs"
+          runTitle: "Delivery runs",
+          quoteTitle: "Quote and commercial progression",
+          quoteEmpty: "No formal quote items exist yet.",
+          commercialDecisionEmpty: "The customer has not submitted a commercial response yet."
         };
 
   return (
@@ -354,11 +360,11 @@ export default async function EngagementDetailPage({
       {engagement.agreement ? (
         <section className="panel">
           <div className="sectionhead">
-            <p className="eyebrow">{locale === "zh" ? "商务确认" : "Commercial frame"}</p>
+            <p className="eyebrow">{t.quoteTitle}</p>
             <h2>
               {locale === "zh"
-                ? "让承接对象具备最小的商业成立条件"
-                : "Give the engagement a minimal commercial reality"}
+                ? "把报价、商业状态和客户回应放到同一工作流里"
+                : "Keep quote structure, commercial status, and customer response inside one workflow"}
             </h2>
           </div>
           <div className="surface-grid surface-grid-two">
@@ -378,12 +384,72 @@ export default async function EngagementDetailPage({
               <h3>{locale === "zh" ? "启动窗口" : "Start window"}</h3>
               <p>{engagement.agreement.startWindow}</p>
             </article>
+            <article className="card">
+              <h3>{locale === "zh" ? "报价编号" : "Quote reference"}</h3>
+              <p>{engagement.agreement.quoteReference || "-"}</p>
+            </article>
+            <article className="card">
+              <h3>{locale === "zh" ? "付款条款" : "Payment terms"}</h3>
+              <p>{engagement.agreement.paymentTerms || "-"}</p>
+            </article>
+            <article className="card">
+              <h3>{locale === "zh" ? "服务窗口" : "Service window"}</h3>
+              <p>{engagement.agreement.serviceWindow || "-"}</p>
+            </article>
           </div>
           <p className="tagline">
             {locale === "zh" ? "商务状态" : "Commercial status"} /{" "}
             {humanizeToken(engagement.agreement.status, locale)}
           </p>
           <p>{engagement.agreement.notes}</p>
+
+          <div className="timeline">
+            {engagement.quoteItems.length === 0 ? (
+              <p>{t.quoteEmpty}</p>
+            ) : (
+              engagement.quoteItems.map((item) => (
+                <article key={item.id} className="timelineitem">
+                  <div className="timelinehead">
+                    <p className="tagline">{item.title}</p>
+                    <span className={`statuspill ${toneClass(item.status)}`}>
+                      {humanizeToken(item.status, locale)}
+                    </span>
+                  </div>
+                  <p>{item.summary}</p>
+                  <p className="tagline">
+                    {item.amountLabel} / {item.scopeLabel}
+                  </p>
+                </article>
+              ))
+            )}
+          </div>
+
+          <div className="timeline">
+            {engagement.commercialDecision ? (
+              <article className="timelineitem">
+                <div className="timelinehead">
+                  <p className="tagline">
+                    {locale === "zh" ? "客户商业回应" : "Customer commercial response"}
+                  </p>
+                  <span
+                    className={`statuspill ${toneClass(
+                      engagement.commercialDecision.status
+                    )}`}
+                  >
+                    {humanizeToken(engagement.commercialDecision.status, locale)}
+                  </span>
+                </div>
+                <p>{engagement.commercialDecision.notes}</p>
+                {engagement.commercialDecision.decidedAt ? (
+                  <p className="timestamp">
+                    {formatTimestamp(engagement.commercialDecision.decidedAt, locale)}
+                  </p>
+                ) : null}
+              </article>
+            ) : (
+              <p>{t.commercialDecisionEmpty}</p>
+            )}
+          </div>
         </section>
       ) : (
         <section className="panel">

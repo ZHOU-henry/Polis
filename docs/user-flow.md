@@ -41,6 +41,8 @@
 - delivery milestones
 - deliverables and review
 - lightweight commercial frame
+- quote items
+- customer commercial response
 - customer confirmation
 - feedback threads
 - incident tickets
@@ -90,6 +92,9 @@
 - engagement incidents: implemented
 - accepted response -> delivery run creation: implemented
 - role-surface operating signals: implemented
+- quote items: implemented
+- customer commercial response: implemented
+- provider verification tiers / connector / governance framing: implemented as a first 3.0 foundation
 - run detail: implemented
 - operator review: implemented as a first minimal verdict flow
 - operator queue: implemented

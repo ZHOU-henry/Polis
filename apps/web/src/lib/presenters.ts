@@ -62,6 +62,10 @@ const tokenLabelsZh: Record<string, string> = {
   pending: "待确认",
   sent: "已发出",
   negotiating: "谈判中",
+  proposed: "待报价",
+  included: "已纳入",
+  optional: "可选项",
+  request_changes: "要求修改",
   issues_reported: "已反馈问题",
   expansion_requested: "希望扩展",
   acknowledged: "已确认收到",
@@ -154,6 +158,7 @@ export function toneClass(value: string | null | undefined) {
     case "open":
     case "critical":
     case "blocked":
+    case "request_changes":
       return "tone-rose";
     case "submitted":
     case "needs_work":
@@ -163,6 +168,8 @@ export function toneClass(value: string | null | undefined) {
     case "pending":
     case "watch":
     case "sent":
+    case "proposed":
+    case "optional":
       return "tone-amber";
     case "active":
     case "interactive":
@@ -170,6 +177,7 @@ export function toneClass(value: string | null | undefined) {
     case "expansion_requested":
     case "expansion":
     case "negotiating":
+    case "included":
       return "tone-violet";
     case "running":
     case "kickoff":

@@ -7,6 +7,7 @@ import {
   EngagementDeliverableInputSchema,
   EngagementDetailSchema,
   EngagementMilestoneInputSchema,
+  EngagementQuoteItemInputSchema,
   EngagementReviewInputSchema,
   EngagementStatusUpdateInputSchema,
   type EngagementDetail
@@ -60,8 +61,24 @@ export function EngagementOpsControls({
   const [agreementStartWindow, setAgreementStartWindow] = useState(
     initialEngagement.agreement?.startWindow ?? ""
   );
+  const [agreementQuoteReference, setAgreementQuoteReference] = useState(
+    initialEngagement.agreement?.quoteReference ?? ""
+  );
+  const [agreementPaymentTerms, setAgreementPaymentTerms] = useState(
+    initialEngagement.agreement?.paymentTerms ?? ""
+  );
+  const [agreementServiceWindow, setAgreementServiceWindow] = useState(
+    initialEngagement.agreement?.serviceWindow ?? ""
+  );
   const [agreementNotes, setAgreementNotes] = useState(
     initialEngagement.agreement?.notes ?? ""
+  );
+  const [quoteItemTitle, setQuoteItemTitle] = useState("");
+  const [quoteItemSummary, setQuoteItemSummary] = useState("");
+  const [quoteItemAmountLabel, setQuoteItemAmountLabel] = useState("");
+  const [quoteItemScopeLabel, setQuoteItemScopeLabel] = useState("");
+  const [quoteItemStatus, setQuoteItemStatus] = useState<"proposed" | "included" | "optional">(
+    "proposed"
   );
   const [error, setError] = useState("");
   const [pendingKey, setPendingKey] = useState("");
@@ -73,6 +90,9 @@ export function EngagementOpsControls({
     setAgreementBillingModel(initialEngagement.agreement?.billingModel ?? "");
     setAgreementBudgetLabel(initialEngagement.agreement?.budgetLabel ?? "");
     setAgreementStartWindow(initialEngagement.agreement?.startWindow ?? "");
+    setAgreementQuoteReference(initialEngagement.agreement?.quoteReference ?? "");
+    setAgreementPaymentTerms(initialEngagement.agreement?.paymentTerms ?? "");
+    setAgreementServiceWindow(initialEngagement.agreement?.serviceWindow ?? "");
     setAgreementNotes(initialEngagement.agreement?.notes ?? "");
   }, [initialEngagement]);
 
@@ -99,8 +119,18 @@ export function EngagementOpsControls({
           agreementBilling: "计费方式",
           agreementBudget: "预算区间",
           agreementStart: "启动窗口",
+          agreementQuoteReference: "报价编号",
+          agreementPaymentTerms: "付款条款",
+          agreementServiceWindow: "服务窗口",
           agreementNotes: "商务备注",
           agreementSubmit: "保存商务信息",
+          quoteTitle: "新增报价项",
+          quoteItemTitle: "报价项标题",
+          quoteItemSummary: "报价项说明",
+          quoteItemAmount: "金额标签",
+          quoteItemScope: "范围标签",
+          quoteItemStatus: "报价项状态",
+          quoteSubmit: "新增报价项",
           reviewTitle: "提交审核记录",
           verdict: "审核结论",
           notes: "审核备注",
@@ -130,8 +160,18 @@ export function EngagementOpsControls({
           agreementBilling: "Billing model",
           agreementBudget: "Budget band",
           agreementStart: "Start window",
+          agreementQuoteReference: "Quote reference",
+          agreementPaymentTerms: "Payment terms",
+          agreementServiceWindow: "Service window",
           agreementNotes: "Commercial notes",
           agreementSubmit: "Save commercial frame",
+          quoteTitle: "Add quote item",
+          quoteItemTitle: "Quote item title",
+          quoteItemSummary: "Quote item summary",
+          quoteItemAmount: "Amount label",
+          quoteItemScope: "Scope label",
+          quoteItemStatus: "Quote item status",
+          quoteSubmit: "Add quote item",
           reviewTitle: "Submit review log",
           verdict: "Verdict",
           notes: "Notes",
@@ -362,6 +402,9 @@ export function EngagementOpsControls({
       billingModel: agreementBillingModel,
       budgetLabel: agreementBudgetLabel,
       startWindow: agreementStartWindow,
+      quoteReference: agreementQuoteReference,
+      paymentTerms: agreementPaymentTerms,
+      serviceWindow: agreementServiceWindow,
       notes: agreementNotes
     });
 
@@ -391,6 +434,66 @@ export function EngagementOpsControls({
       }
 
       setEngagement(parsedItem.data);
+      startTransition(() => {
+        router.refresh();
+      });
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : t.failed);
+    } finally {
+      setPendingKey("");
+    }
+  }
+
+  async function submitQuoteItem(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (readOnlyPreview) {
+      setError(t.previewDisabled);
+      return;
+    }
+
+    setError("");
+    setPendingKey("quote-item");
+
+    const parsed = EngagementQuoteItemInputSchema.safeParse({
+      title: quoteItemTitle,
+      summary: quoteItemSummary,
+      amountLabel: quoteItemAmountLabel,
+      scopeLabel: quoteItemScopeLabel,
+      status: quoteItemStatus
+    });
+
+    if (!parsed.success) {
+      setError(t.failed);
+      setPendingKey("");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${browserApiBasePath}/engagements/${engagement.id}/quote-items`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(parsed.data)
+        }
+      );
+
+      const payload = (await response.json()) as { item?: unknown; error?: string };
+      const parsedItem = EngagementDetailSchema.safeParse(payload.item);
+
+      if (!response.ok || !parsedItem.success) {
+        throw new Error(payload.error ?? t.failed);
+      }
+
+      setEngagement(parsedItem.data);
+      setQuoteItemTitle("");
+      setQuoteItemSummary("");
+      setQuoteItemAmountLabel("");
+      setQuoteItemScopeLabel("");
+      setQuoteItemStatus("proposed");
       startTransition(() => {
         router.refresh();
       });
@@ -631,6 +734,30 @@ export function EngagementOpsControls({
               disabled={pendingKey.length > 0}
             />
           </label>
+          <label>
+            <span>{t.agreementQuoteReference}</span>
+            <input
+              value={agreementQuoteReference}
+              onChange={(event) => setAgreementQuoteReference(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
+          <label>
+            <span>{t.agreementPaymentTerms}</span>
+            <input
+              value={agreementPaymentTerms}
+              onChange={(event) => setAgreementPaymentTerms(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
+          <label>
+            <span>{t.agreementServiceWindow}</span>
+            <input
+              value={agreementServiceWindow}
+              onChange={(event) => setAgreementServiceWindow(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
         </div>
         <label>
           <span>{t.agreementNotes}</span>
@@ -645,6 +772,85 @@ export function EngagementOpsControls({
           {t.agreementSubmit}
         </button>
       </form>
+
+      <form className="form" onSubmit={submitQuoteItem}>
+        <div className="sectionhead">
+          <p className="eyebrow">{t.quoteTitle}</p>
+        </div>
+        <div className="surface-grid surface-grid-two">
+          <label>
+            <span>{t.quoteItemTitle}</span>
+            <input
+              value={quoteItemTitle}
+              onChange={(event) => setQuoteItemTitle(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
+          <label>
+            <span>{t.quoteItemAmount}</span>
+            <input
+              value={quoteItemAmountLabel}
+              onChange={(event) => setQuoteItemAmountLabel(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
+          <label>
+            <span>{t.quoteItemScope}</span>
+            <input
+              value={quoteItemScopeLabel}
+              onChange={(event) => setQuoteItemScopeLabel(event.target.value)}
+              disabled={pendingKey.length > 0}
+            />
+          </label>
+          <label>
+            <span>{t.quoteItemStatus}</span>
+            <select
+              value={quoteItemStatus}
+              onChange={(event) =>
+                setQuoteItemStatus(
+                  event.target.value as "proposed" | "included" | "optional"
+                )
+              }
+              disabled={pendingKey.length > 0}
+            >
+              <option value="proposed">{humanizeToken("proposed", locale)}</option>
+              <option value="included">{humanizeToken("included", locale)}</option>
+              <option value="optional">{humanizeToken("optional", locale)}</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>{t.quoteItemSummary}</span>
+          <textarea
+            value={quoteItemSummary}
+            onChange={(event) => setQuoteItemSummary(event.target.value)}
+            rows={3}
+            disabled={pendingKey.length > 0}
+          />
+        </label>
+        <button type="submit" disabled={pendingKey.length > 0}>
+          {t.quoteSubmit}
+        </button>
+      </form>
+
+      {engagement.quoteItems.length > 0 ? (
+        <div className="timeline">
+          {engagement.quoteItems.map((item) => (
+            <article key={item.id} className="timelineitem">
+              <div className="timelinehead">
+                <p className="tagline">{item.title}</p>
+                <span className={`statuspill ${toneClass(item.status)}`}>
+                  {humanizeToken(item.status, locale)}
+                </span>
+              </div>
+              <p>{item.summary}</p>
+              <p className="tagline">
+                {item.amountLabel} / {item.scopeLabel}
+              </p>
+            </article>
+          ))}
+        </div>
+      ) : null}
 
       <form className="form" onSubmit={submitReview}>
         <div className="sectionhead">

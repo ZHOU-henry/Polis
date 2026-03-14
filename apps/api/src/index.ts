@@ -1,5 +1,6 @@
 import Fastify from "fastify";
 import {
+  CommercialDecisionInputSchema,
   CustomerConfirmationInputSchema,
   EngagementAgreementInputSchema,
   EngagementDeliverableInputSchema,
@@ -13,6 +14,7 @@ import {
   EngagementIncidentInputSchema,
   EngagementIncidentStatusUpdateInputSchema,
   EngagementMilestoneInputSchema,
+  EngagementQuoteItemInputSchema,
   EngagementReviewInputSchema,
   EngagementStatusUpdateInputSchema,
   ProviderProfileInputSchema,
@@ -27,6 +29,7 @@ import {
   syncAgentDefinitions
 } from "./data/agents.js";
 import {
+  addEngagementQuoteItem,
   addEngagementFeedback,
   addEngagementIncident,
   addEngagementDeliverable,
@@ -36,6 +39,7 @@ import {
   submitEngagementReview,
   updateEngagementFeedbackStatus,
   updateEngagementIncidentStatus,
+  upsertEngagementCommercialDecision,
   upsertEngagementAgreement,
   upsertEngagementCustomerConfirmation,
   updateEngagementDeliverableStatus,
@@ -253,6 +257,56 @@ server.put("/engagements/:id/agreement", async (request, reply) => {
 
   if (!engagement) {
     return notFound(reply, "Engagement not found");
+  }
+
+  return {
+    item: engagement
+  };
+});
+
+server.post("/engagements/:id/quote-items", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = EngagementQuoteItemInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid engagement quote item", parsed.error.flatten());
+  }
+
+  const engagement = await addEngagementQuoteItem(id, parsed.data);
+
+  if (!engagement) {
+    return notFound(reply, "Engagement agreement not found");
+  }
+
+  return reply.code(201).send({
+    item: engagement
+  });
+});
+
+server.put("/engagements/:id/commercial-decision", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = CommercialDecisionInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(
+      reply,
+      "Invalid commercial decision update",
+      parsed.error.flatten()
+    );
+  }
+
+  const engagement = await upsertEngagementCommercialDecision(id, parsed.data);
+
+  if (!engagement) {
+    return notFound(reply, "Engagement agreement not found");
   }
 
   return {

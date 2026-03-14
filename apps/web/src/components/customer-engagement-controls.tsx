@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useState } from "react";
 import {
+  CommercialDecisionInputSchema,
   CustomerConfirmationInputSchema,
   EngagementDetailSchema,
   EngagementFeedbackInputSchema,
@@ -32,6 +33,12 @@ const feedbackCategories = [
   "expansion_signal"
 ] as const;
 const incidentSeverities = ["low", "medium", "high", "critical"] as const;
+const commercialDecisionStatuses = [
+  "pending",
+  "accepted",
+  "request_changes",
+  "declined"
+] as const;
 
 export function CustomerEngagementControls({
   initialEngagement,
@@ -53,6 +60,9 @@ export function CustomerEngagementControls({
   const [incidentSummary, setIncidentSummary] = useState("");
   const [incidentSeverity, setIncidentSeverity] =
     useState<(typeof incidentSeverities)[number]>("medium");
+  const [commercialDecisionStatus, setCommercialDecisionStatus] =
+    useState<(typeof commercialDecisionStatuses)[number]>("pending");
+  const [commercialDecisionNotes, setCommercialDecisionNotes] = useState("");
   const [error, setError] = useState("");
   const [pendingKey, setPendingKey] = useState("");
 
@@ -73,6 +83,10 @@ export function CustomerEngagementControls({
           : "Add the field-validation result, whether the rollout can expand, or what still blocks acceptance.")
     );
     setConfirmationNextStep(confirmation?.nextStep ?? "");
+    setCommercialDecisionStatus(
+      initialEngagement.commercialDecision?.status ?? "pending"
+    );
+    setCommercialDecisionNotes(initialEngagement.commercialDecision?.notes ?? "");
   }, [initialEngagement, locale]);
 
   const t =
@@ -97,6 +111,10 @@ export function CustomerEngagementControls({
           incidentSummary: "问题描述",
           incidentSeverity: "严重级别",
           incidentSubmit: "提交问题工单",
+          commercialTitle: "商业回应",
+          commercialStatus: "商业决定",
+          commercialNotes: "商业备注",
+          commercialSubmit: "提交商业回应",
           failed: "操作失败"
         }
       : {
@@ -119,6 +137,10 @@ export function CustomerEngagementControls({
           incidentSummary: "Incident summary",
           incidentSeverity: "Severity",
           incidentSubmit: "Open incident ticket",
+          commercialTitle: "Commercial response",
+          commercialStatus: "Commercial decision",
+          commercialNotes: "Commercial notes",
+          commercialSubmit: "Submit commercial response",
           failed: "Operation failed"
         };
 
@@ -284,6 +306,51 @@ export function CustomerEngagementControls({
     }
   }
 
+  async function submitCommercialDecision(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (readOnlyPreview) {
+      setError(t.previewDisabled);
+      return;
+    }
+
+    setError("");
+    setPendingKey("commercial");
+
+    const parsed = CommercialDecisionInputSchema.safeParse({
+      status: commercialDecisionStatus,
+      notes: commercialDecisionNotes
+    });
+
+    if (!parsed.success) {
+      setError(t.failed);
+      setPendingKey("");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${browserApiBasePath}/engagements/${engagement.id}/commercial-decision`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(parsed.data)
+        }
+      );
+
+      await syncEngagement(response, t.failed, (item) => {
+        setCommercialDecisionStatus(item.commercialDecision?.status ?? "pending");
+        setCommercialDecisionNotes(item.commercialDecision?.notes ?? "");
+      });
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : t.failed);
+    } finally {
+      setPendingKey("");
+    }
+  }
+
   return (
     <section className="panel">
       <div className="sectionhead">
@@ -425,6 +492,40 @@ export function CustomerEngagementControls({
           </label>
           <button type="submit" disabled={readOnlyPreview || pendingKey === "incident"}>
             {t.incidentSubmit}
+          </button>
+        </form>
+
+        <form className="form" onSubmit={submitCommercialDecision}>
+          <h3>{t.commercialTitle}</h3>
+          <label>
+            <span>{t.commercialStatus}</span>
+            <select
+              value={commercialDecisionStatus}
+              onChange={(event) =>
+                setCommercialDecisionStatus(
+                  event.target.value as (typeof commercialDecisionStatuses)[number]
+                )
+              }
+              disabled={readOnlyPreview}
+            >
+              {commercialDecisionStatuses.map((status) => (
+                <option key={status} value={status}>
+                  {humanizeToken(status, locale)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            <span>{t.commercialNotes}</span>
+            <textarea
+              value={commercialDecisionNotes}
+              onChange={(event) => setCommercialDecisionNotes(event.target.value)}
+              rows={4}
+              disabled={readOnlyPreview}
+            />
+          </label>
+          <button type="submit" disabled={readOnlyPreview || pendingKey === "commercial"}>
+            {t.commercialSubmit}
           </button>
         </form>
       </div>

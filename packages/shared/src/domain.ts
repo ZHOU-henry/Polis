@@ -136,6 +136,19 @@ export const EngagementAgreementStatusSchema = z.enum([
   "confirmed"
 ]);
 
+export const EngagementQuoteItemStatusSchema = z.enum([
+  "proposed",
+  "included",
+  "optional"
+]);
+
+export const CommercialDecisionStatusSchema = z.enum([
+  "pending",
+  "accepted",
+  "request_changes",
+  "declined"
+]);
+
 export const CustomerConfirmationStatusSchema = z.enum([
   "pending",
   "accepted",
@@ -339,6 +352,9 @@ export const EngagementAgreementRecordSchema = z.object({
   billingModel: z.string(),
   budgetLabel: z.string(),
   startWindow: z.string(),
+  quoteReference: z.string(),
+  paymentTerms: z.string(),
+  serviceWindow: z.string(),
   notes: z.string(),
   createdAt: z.string(),
   updatedAt: z.string()
@@ -354,11 +370,65 @@ export const EngagementAgreementInputSchema = z.object({
   billingModel: z.string().min(2).max(120),
   budgetLabel: z.string().min(2).max(120),
   startWindow: z.string().min(2).max(120),
+  quoteReference: z.string().max(120).optional().default(""),
+  paymentTerms: z.string().max(240).optional().default(""),
+  serviceWindow: z.string().max(240).optional().default(""),
   notes: z.string().min(3).max(1000)
 });
 
 export type EngagementAgreementInput = z.infer<
   typeof EngagementAgreementInputSchema
+>;
+
+export const EngagementQuoteItemRecordSchema = z.object({
+  id: z.string(),
+  agreementId: z.string(),
+  title: z.string(),
+  summary: z.string(),
+  amountLabel: z.string(),
+  scopeLabel: z.string(),
+  status: EngagementQuoteItemStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+
+export type EngagementQuoteItemRecord = z.infer<
+  typeof EngagementQuoteItemRecordSchema
+>;
+
+export const EngagementQuoteItemInputSchema = z.object({
+  title: z.string().min(3).max(120),
+  summary: z.string().min(3).max(600),
+  amountLabel: z.string().min(1).max(120),
+  scopeLabel: z.string().min(1).max(120),
+  status: EngagementQuoteItemStatusSchema.default("proposed")
+});
+
+export type EngagementQuoteItemInput = z.infer<
+  typeof EngagementQuoteItemInputSchema
+>;
+
+export const CommercialDecisionRecordSchema = z.object({
+  id: z.string(),
+  agreementId: z.string(),
+  status: CommercialDecisionStatusSchema,
+  notes: z.string(),
+  decidedAt: z.string().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+
+export type CommercialDecisionRecord = z.infer<
+  typeof CommercialDecisionRecordSchema
+>;
+
+export const CommercialDecisionInputSchema = z.object({
+  status: CommercialDecisionStatusSchema,
+  notes: z.string().min(3).max(1000)
+});
+
+export type CommercialDecisionInput = z.infer<
+  typeof CommercialDecisionInputSchema
 >;
 
 export const CustomerConfirmationRecordSchema = z.object({
@@ -617,6 +687,8 @@ export const EngagementDetailSchema = EngagementRecordSchema.extend({
   deliverables: z.array(EngagementDeliverableRecordSchema),
   reviews: z.array(EngagementReviewRecordSchema),
   agreement: EngagementAgreementRecordSchema.nullable(),
+  quoteItems: z.array(EngagementQuoteItemRecordSchema),
+  commercialDecision: CommercialDecisionRecordSchema.nullable(),
   customerConfirmation: CustomerConfirmationRecordSchema.nullable(),
   feedbackItems: z.array(EngagementFeedbackRecordSchema),
   incidents: z.array(EngagementIncidentRecordSchema)

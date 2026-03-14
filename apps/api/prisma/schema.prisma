@@ -161,12 +161,44 @@ model EngagementAgreement {
   billingModel  String
   budgetLabel   String
   startWindow   String
+  quoteReference String?
+  paymentTerms  String?
+  serviceWindow String?
   notes         String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   engagementId String @unique
   engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  quoteItems        EngagementQuoteItem[]
+  customerDecision  EngagementCommercialDecision?
+}
+
+model EngagementQuoteItem {
+  id          String   @id @default(cuid())
+  title       String
+  summary     String
+  amountLabel String
+  scopeLabel  String
+  status      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agreementId String
+  agreement   EngagementAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+}
+
+model EngagementCommercialDecision {
+  id        String   @id @default(cuid())
+  status    String
+  notes     String
+  decidedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agreementId String @unique
+  agreement   EngagementAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
 }
 
 model EngagementCustomerConfirmation {

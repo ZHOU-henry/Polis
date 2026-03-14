@@ -129,6 +129,7 @@ export function canAccessRoleWriteApiPath(
     if (
       pathMatches(pathname, /^\/engagements\/[^/]+\/milestones$/) ||
       pathMatches(pathname, /^\/engagements\/[^/]+\/reviews$/) ||
+      pathMatches(pathname, /^\/engagements\/[^/]+\/quote-items$/) ||
       pathMatches(pathname, /^\/task-runs\/[^/]+\/review$/)
     ) {
       return role === "ops";
@@ -159,6 +160,10 @@ export function canAccessRoleWriteApiPath(
 
   if (method === "PUT") {
     if (pathMatches(pathname, /^\/engagements\/[^/]+\/customer-confirmation$/)) {
+      return role === "customer";
+    }
+
+    if (pathMatches(pathname, /^\/engagements\/[^/]+\/commercial-decision$/)) {
       return role === "customer";
     }
 

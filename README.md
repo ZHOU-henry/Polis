@@ -20,9 +20,11 @@ The newest product slice adds a live demand board publishing path and builder re
 
 ## Stage
 
-MVP 2.0: executable monorepo with visible demand publishing, builder responses,
-formal engagement objects, delivery operations, customer confirmation, feedback
-and incident loops, and role-first operating surfaces.
+MVP 2.5 + early 3.0 foundation: executable monorepo with visible demand
+publishing, builder responses, formal engagement objects, delivery operations,
+customer confirmation, feedback and incident loops, expansion tracking,
+commercial quote workflow, verification tiers, and role-first operating
+surfaces.
 
 ## Stack
 
@@ -69,6 +71,10 @@ and incident loops, and role-first operating surfaces.
 - first-class feedback and incident loops on engagements
 - delivery runs created after response acceptance instead of at demand submission
 - operating metrics across homepage, customer, builder, ops, provider, and engagement surfaces
+- deployment graph and expansion pipeline surfaces
+- builder proof and ops health dashboard
+- early quote workflow with quote items and customer commercial response
+- provider verification tiers plus connector / governance framing
 
 ## Newest Direction
 

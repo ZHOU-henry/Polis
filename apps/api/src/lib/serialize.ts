@@ -1,6 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import type {
   AgentDefinition,
+  CommercialDecisionRecord,
   CustomerConfirmationRecord,
   EngagementAgreementRecord,
   DemandBoardItem,
@@ -10,6 +11,7 @@ import type {
   EngagementFeedbackRecord,
   EngagementIncidentRecord,
   EngagementMilestoneRecord,
+  EngagementQuoteItemRecord,
   EngagementRecord,
   EngagementReviewRecord,
   ProviderAgentReference,
@@ -30,6 +32,9 @@ type DbEngagementMilestone = Prisma.EngagementMilestoneGetPayload<Record<string,
 type DbEngagementDeliverable = Prisma.EngagementDeliverableGetPayload<Record<string, never>>;
 type DbEngagementReview = Prisma.EngagementReviewGetPayload<Record<string, never>>;
 type DbEngagementAgreement = Prisma.EngagementAgreementGetPayload<Record<string, never>>;
+type DbEngagementQuoteItem = Prisma.EngagementQuoteItemGetPayload<Record<string, never>>;
+type DbEngagementCommercialDecision =
+  Prisma.EngagementCommercialDecisionGetPayload<Record<string, never>>;
 type DbEngagementCustomerConfirmation =
   Prisma.EngagementCustomerConfirmationGetPayload<Record<string, never>>;
 type DbEngagementFeedback = Prisma.EngagementFeedbackGetPayload<Record<string, never>>;
@@ -235,9 +240,42 @@ export function serializeEngagementAgreementRecord(
     billingModel: agreement.billingModel,
     budgetLabel: agreement.budgetLabel,
     startWindow: agreement.startWindow,
+    quoteReference: agreement.quoteReference ?? "",
+    paymentTerms: agreement.paymentTerms ?? "",
+    serviceWindow: agreement.serviceWindow ?? "",
     notes: agreement.notes,
     createdAt: agreement.createdAt.toISOString(),
     updatedAt: agreement.updatedAt.toISOString()
+  };
+}
+
+export function serializeEngagementQuoteItemRecord(
+  item: DbEngagementQuoteItem
+): EngagementQuoteItemRecord {
+  return {
+    id: item.id,
+    agreementId: item.agreementId,
+    title: item.title,
+    summary: item.summary,
+    amountLabel: item.amountLabel,
+    scopeLabel: item.scopeLabel,
+    status: item.status as EngagementQuoteItemRecord["status"],
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString()
+  };
+}
+
+export function serializeCommercialDecisionRecord(
+  decision: DbEngagementCommercialDecision
+): CommercialDecisionRecord {
+  return {
+    id: decision.id,
+    agreementId: decision.agreementId,
+    status: decision.status as CommercialDecisionRecord["status"],
+    notes: decision.notes,
+    decidedAt: decision.decidedAt?.toISOString() ?? null,
+    createdAt: decision.createdAt.toISOString(),
+    updatedAt: decision.updatedAt.toISOString()
   };
 }
 
@@ -455,7 +493,12 @@ export function serializeEngagementDetail(
     milestones: DbEngagementMilestone[];
     deliverables: DbEngagementDeliverable[];
     reviews: DbEngagementReview[];
-    agreement: DbEngagementAgreement | null;
+    agreement:
+      | (DbEngagementAgreement & {
+          quoteItems: DbEngagementQuoteItem[];
+          customerDecision: DbEngagementCommercialDecision | null;
+        })
+      | null;
     customerConfirmation: DbEngagementCustomerConfirmation | null;
     feedbackItems: DbEngagementFeedback[];
     incidents: DbEngagementIncident[];
@@ -484,6 +527,12 @@ export function serializeEngagementDetail(
     reviews: engagement.reviews.map(serializeEngagementReviewRecord),
     agreement: engagement.agreement
       ? serializeEngagementAgreementRecord(engagement.agreement)
+      : null,
+    quoteItems: engagement.agreement?.quoteItems
+      ? engagement.agreement.quoteItems.map(serializeEngagementQuoteItemRecord)
+      : [],
+    commercialDecision: engagement.agreement?.customerDecision
+      ? serializeCommercialDecisionRecord(engagement.agreement.customerDecision)
       : null,
     customerConfirmation: engagement.customerConfirmation
       ? serializeCustomerConfirmationRecord(engagement.customerConfirmation)

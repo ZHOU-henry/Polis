@@ -5,6 +5,7 @@ import {
   serializeEngagementRecord
 } from "../lib/serialize.js";
 import type {
+  CommercialDecisionInput,
   CustomerConfirmationInput,
   EngagementAgreementInput,
   EngagementDeliverableInput,
@@ -14,6 +15,7 @@ import type {
   EngagementIncidentInput,
   EngagementIncidentStatusUpdateInput,
   EngagementMilestoneInput,
+  EngagementQuoteItemInput,
   EngagementReviewInput,
   EngagementStatusUpdateInput
 } from "@agora/shared/domain";
@@ -54,7 +56,16 @@ const engagementDetailInclude = {
       createdAt: "asc" as const
     }
   },
-  agreement: true,
+  agreement: {
+    include: {
+      quoteItems: {
+        orderBy: {
+          createdAt: "asc" as const
+        }
+      },
+      customerDecision: true
+    }
+  },
   customerConfirmation: true,
   feedbackItems: {
     orderBy: {
@@ -280,6 +291,9 @@ export async function upsertEngagementAgreement(
       billingModel: input.billingModel,
       budgetLabel: input.budgetLabel,
       startWindow: input.startWindow,
+      quoteReference: input.quoteReference || null,
+      paymentTerms: input.paymentTerms || null,
+      serviceWindow: input.serviceWindow || null,
       notes: input.notes
     },
     create: {
@@ -289,7 +303,73 @@ export async function upsertEngagementAgreement(
       billingModel: input.billingModel,
       budgetLabel: input.budgetLabel,
       startWindow: input.startWindow,
+      quoteReference: input.quoteReference || null,
+      paymentTerms: input.paymentTerms || null,
+      serviceWindow: input.serviceWindow || null,
       notes: input.notes
+    }
+  });
+
+  return fetchEngagementDetail(engagementId);
+}
+
+export async function addEngagementQuoteItem(
+  engagementId: string,
+  input: EngagementQuoteItemInput
+) {
+  const existingAgreement = await prisma.engagementAgreement.findUnique({
+    where: {
+      engagementId
+    }
+  });
+
+  if (!existingAgreement) {
+    return null;
+  }
+
+  await prisma.engagementQuoteItem.create({
+    data: {
+      id: randomUUID(),
+      agreementId: existingAgreement.id,
+      title: input.title,
+      summary: input.summary,
+      amountLabel: input.amountLabel,
+      scopeLabel: input.scopeLabel,
+      status: input.status
+    }
+  });
+
+  return fetchEngagementDetail(engagementId);
+}
+
+export async function upsertEngagementCommercialDecision(
+  engagementId: string,
+  input: CommercialDecisionInput
+) {
+  const existingAgreement = await prisma.engagementAgreement.findUnique({
+    where: {
+      engagementId
+    }
+  });
+
+  if (!existingAgreement) {
+    return null;
+  }
+
+  await prisma.engagementCommercialDecision.upsert({
+    where: {
+      agreementId: existingAgreement.id
+    },
+    update: {
+      status: input.status,
+      notes: input.notes,
+      decidedAt: new Date()
+    },
+    create: {
+      agreementId: existingAgreement.id,
+      status: input.status,
+      notes: input.notes,
+      decidedAt: new Date()
     }
   });
 

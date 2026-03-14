@@ -6,6 +6,8 @@ type EngagementScaffoldDb = Pick<
   | "engagementDeliverable"
   | "engagementReview"
   | "engagementAgreement"
+  | "engagementQuoteItem"
+  | "engagementCommercialDecision"
   | "engagementCustomerConfirmation"
 >;
 
@@ -175,12 +177,54 @@ function getScaffoldTemplates(
           confirmedAt: null
         };
 
+  const quoteItems =
+    mode === "demo"
+      ? [
+          {
+            id: `quote-item-${taskRequestId}-pilot`,
+            title: "Pilot deployment package",
+            summary:
+              "Covers rollout design, first-line deployment, operator enablement, and the first validation cycle.",
+            amountLabel: "RMB 80k - 150k",
+            scopeLabel: "phase 1 / pilot",
+            status: "included"
+          }
+        ]
+      : [
+          {
+            id: `quote-item-${taskRequestId}-pilot`,
+            title: "Pilot rollout package",
+            summary:
+              "Initial delivery scope covering deployment prep, first workflow release, and validation support.",
+            amountLabel: "to be quoted",
+            scopeLabel: "phase 1 / pilot",
+            status: "proposed"
+          }
+        ];
+
+  const commercialDecision =
+    mode === "demo"
+      ? {
+          status: "request_changes",
+          notes:
+            "The customer is aligned on the pilot shape but wants tighter payment terms before signature.",
+          decidedAt: null
+        }
+      : {
+          status: "pending",
+          notes:
+            "No customer-side commercial decision has been recorded yet.",
+          decidedAt: null
+        };
+
   return {
     milestones,
     deliverables,
     reviews,
     agreement,
-    customerConfirmation
+    customerConfirmation,
+    quoteItems,
+    commercialDecision
   };
 }
 
@@ -286,6 +330,58 @@ export async function ensureEngagementScaffold(
       budgetLabel: templates.agreement.budgetLabel,
       startWindow: templates.agreement.startWindow,
       notes: templates.agreement.notes
+    }
+  });
+
+  const agreement = await db.engagementAgreement.findUniqueOrThrow({
+    where: {
+      engagementId
+    }
+  });
+
+  for (const item of templates.quoteItems) {
+    await db.engagementQuoteItem.upsert({
+      where: {
+        id: item.id
+      },
+      update: overwriteExisting
+        ? {
+            title: item.title,
+            summary: item.summary,
+            amountLabel: item.amountLabel,
+            scopeLabel: item.scopeLabel,
+            status: item.status,
+            agreementId: agreement.id
+          }
+        : {},
+      create: {
+        id: item.id,
+        agreementId: agreement.id,
+        title: item.title,
+        summary: item.summary,
+        amountLabel: item.amountLabel,
+        scopeLabel: item.scopeLabel,
+        status: item.status
+      }
+    });
+  }
+
+  await db.engagementCommercialDecision.upsert({
+    where: {
+      agreementId: agreement.id
+    },
+    update: overwriteExisting
+      ? {
+          status: templates.commercialDecision.status,
+          notes: templates.commercialDecision.notes,
+          decidedAt: templates.commercialDecision.decidedAt
+        }
+      : {},
+    create: {
+      agreementId: agreement.id,
+      status: templates.commercialDecision.status,
+      notes: templates.commercialDecision.notes,
+      decidedAt: templates.commercialDecision.decidedAt
     }
   });
 

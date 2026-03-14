@@ -13,6 +13,9 @@ It should grow by becoming more credible across four layers:
 
 ## Phase 2.5
 
+Current status:
+partially shipped
+
 Primary goal:
 turn accepted engagements into observable deployment systems.
 
@@ -32,6 +35,9 @@ What success looks like:
   expansion candidates
 
 ## Phase 3.0
+
+Current status:
+foundation started
 
 Primary goal:
 turn Agora from a delivery board into a serious enterprise transaction layer.
