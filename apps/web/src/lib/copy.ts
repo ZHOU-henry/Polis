@@ -36,6 +36,8 @@ export type AppCopy = {
   accessGate: {
     eyebrow: string;
     title: string;
+    roleLabel: string;
+    roleOptions: Record<"customer" | "builder" | "ops", string>;
     passwordLabel: string;
     passwordPlaceholder: string;
     unlockIdle: string;
@@ -443,6 +445,12 @@ const copyByLocale: Record<Locale, AppCopy> = {
     accessGate: {
       eyebrow: "身份验证",
       title: "预览访问",
+      roleLabel: "访问身份",
+      roleOptions: {
+        customer: "客户侧",
+        builder: "供给侧",
+        ops: "平台运营"
+      },
       passwordLabel: "密码",
       passwordPlaceholder: "输入预览访问密码",
       unlockIdle: "进入预览",
@@ -961,6 +969,12 @@ const copyByLocale: Record<Locale, AppCopy> = {
     accessGate: {
       eyebrow: "Authentication",
       title: "Preview access",
+      roleLabel: "Role",
+      roleOptions: {
+        customer: "Customer side",
+        builder: "Builder side",
+        ops: "Platform ops"
+      },
       passwordLabel: "Password",
       passwordPlaceholder: "Enter the preview password",
       unlockIdle: "Unlock preview",

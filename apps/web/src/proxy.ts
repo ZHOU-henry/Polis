@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  accessRoleCookieName,
+  getAccessRoleRedirectPath,
+  normalizeAccessRole
+} from "./lib/access-role";
 
 const COOKIE_NAME = "agora-preview-access";
 
@@ -21,8 +26,13 @@ export function proxy(request: NextRequest) {
   }
 
   const hasAccess = request.cookies.get(COOKIE_NAME)?.value === "granted";
+  const role = normalizeAccessRole(request.cookies.get(accessRoleCookieName)?.value);
 
   if (hasAccess) {
+    if (pathname === "/") {
+      const dashboardUrl = new URL(getAccessRoleRedirectPath(role), request.url);
+      return NextResponse.redirect(dashboardUrl);
+    }
     return NextResponse.next();
   }
 

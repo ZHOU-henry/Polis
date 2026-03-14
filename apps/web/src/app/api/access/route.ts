@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  accessRoleCookieName,
+  getAccessRoleRedirectPath,
+  normalizeAccessRole
+} from "../../../lib/access-role";
 
 const COOKIE_NAME = "agora-preview-access";
 
@@ -12,14 +17,25 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const body = (await request.json()) as { password?: string };
+  const body = (await request.json()) as { password?: string; role?: string };
+  const role = normalizeAccessRole(body.role);
 
   if (!body.password || body.password !== password) {
     return NextResponse.json({ ok: false, error: "Invalid password." }, { status: 401 });
   }
 
-  const response = NextResponse.json({ ok: true });
+  const response = NextResponse.json({
+    ok: true,
+    redirectTo: getAccessRoleRedirectPath(role)
+  });
   response.cookies.set(COOKIE_NAME, "granted", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: request.nextUrl.protocol === "https:",
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
+  response.cookies.set(accessRoleCookieName, role, {
     httpOnly: true,
     sameSite: "strict",
     secure: request.nextUrl.protocol === "https:",
@@ -33,6 +49,12 @@ export async function POST(request: NextRequest) {
 export async function DELETE() {
   const response = NextResponse.json({ ok: true });
   response.cookies.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0
+  });
+  response.cookies.set(accessRoleCookieName, "", {
     httpOnly: true,
     sameSite: "strict",
     path: "/",

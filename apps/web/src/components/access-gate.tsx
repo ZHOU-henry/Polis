@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import type { AccessRole } from "../lib/access-role";
 import type { Locale } from "../lib/locale";
 
 type AccessGateProps = {
@@ -9,6 +10,8 @@ type AccessGateProps = {
   copy: {
     eyebrow: string;
     title: string;
+    roleLabel: string;
+    roleOptions: Record<AccessRole, string>;
     passwordLabel: string;
     passwordPlaceholder: string;
     unlockIdle: string;
@@ -19,6 +22,7 @@ type AccessGateProps = {
 
 export function AccessGate({ locale, copy }: AccessGateProps) {
   const router = useRouter();
+  const [role, setRole] = useState<AccessRole>("customer");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,16 +38,20 @@ export function AccessGate({ locale, copy }: AccessGateProps) {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password, role })
       });
 
-      const payload = (await response.json()) as { ok?: boolean; error?: string };
+      const payload = (await response.json()) as {
+        ok?: boolean;
+        error?: string;
+        redirectTo?: string;
+      };
 
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error ?? copy.accessDenied);
       }
 
-      router.push("/");
+      router.push(payload.redirectTo ?? "/");
       router.refresh();
     } catch (accessError) {
       setError(
@@ -61,6 +69,17 @@ export function AccessGate({ locale, copy }: AccessGateProps) {
         <h2>{copy.title}</h2>
       </div>
       <form className="form" onSubmit={handleSubmit}>
+        <label>
+          <span>{copy.roleLabel}</span>
+          <select
+            value={role}
+            onChange={(event) => setRole(event.target.value as AccessRole)}
+          >
+            <option value="customer">{copy.roleOptions.customer}</option>
+            <option value="builder">{copy.roleOptions.builder}</option>
+            <option value="ops">{copy.roleOptions.ops}</option>
+          </select>
+        </label>
         <label>
           <span>{copy.passwordLabel}</span>
           <input
