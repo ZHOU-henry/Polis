@@ -17,7 +17,7 @@ export default function RootLayout({
   const readOnlyPreview = isReadOnlyPreviewMode();
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
         <div className="appshell">
           <div className="ambient ambient-orbit ambient-orbit-a" aria-hidden="true" />
