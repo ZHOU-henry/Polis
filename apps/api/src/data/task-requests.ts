@@ -33,6 +33,18 @@ function normalizeResultPayload(
   return payload as Prisma.InputJsonValue;
 }
 
+function normalizeJsonArrayPayload(payload: DbJsonLike | undefined) {
+  if (payload === undefined) {
+    return undefined;
+  }
+
+  if (payload === null) {
+    return Prisma.JsonNull;
+  }
+
+  return payload as Prisma.InputJsonValue;
+}
+
 type DbJsonLike =
   | string
   | number
@@ -127,6 +139,7 @@ export async function createTaskRequest(input: TaskRequestInput) {
       contextNote: input.contextNote,
       requesterOrg: input.requesterOrg,
       industry: input.industry,
+      customerArtifacts: normalizeJsonArrayPayload(input.customerArtifacts),
       status: "submitted"
     },
     include: {
@@ -285,6 +298,7 @@ export async function submitDemandResponse(
       deliveryApproach: input.deliveryApproach,
       etaLabel: input.etaLabel,
       confidence: input.confidence,
+      builderArtifacts: normalizeJsonArrayPayload(input.builderArtifacts),
       status: "submitted"
     },
     create: {
@@ -295,6 +309,7 @@ export async function submitDemandResponse(
       deliveryApproach: input.deliveryApproach,
       etaLabel: input.etaLabel,
       confidence: input.confidence,
+      builderArtifacts: normalizeJsonArrayPayload(input.builderArtifacts),
       status: "submitted"
     },
     include: {

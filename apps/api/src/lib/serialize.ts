@@ -21,7 +21,8 @@ import type {
   ProviderResponseReference,
   TaskRequestDetail,
   TaskRunDetail,
-  TaskRunRecord
+  TaskRunRecord,
+  UploadedArtifact
 } from "@agora/shared/domain";
 
 type DbAgent = Prisma.AgentDefinitionGetPayload<Record<string, never>>;
@@ -43,6 +44,47 @@ type DbTaskRequest = Prisma.TaskRequestGetPayload<Record<string, never>>;
 type DbTaskRun = Prisma.TaskRunGetPayload<Record<string, never>>;
 type DbRunEvent = Prisma.RunEventGetPayload<Record<string, never>>;
 type DbReviewDecision = Prisma.ReviewDecisionGetPayload<Record<string, never>>;
+
+function serializeArtifactList(value: Prisma.JsonValue | null | undefined): UploadedArtifact[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return [];
+    }
+
+    const originalName =
+      "originalName" in item && typeof item.originalName === "string"
+        ? item.originalName
+        : "";
+    const storedName =
+      "storedName" in item && typeof item.storedName === "string"
+        ? item.storedName
+        : "";
+
+    if (!originalName || !storedName) {
+      return [];
+    }
+
+    return [
+      {
+        id: "id" in item && typeof item.id === "string" ? item.id : storedName,
+        originalName,
+        storedName,
+        contentType:
+          "contentType" in item && typeof item.contentType === "string"
+            ? item.contentType
+            : "application/octet-stream",
+        size:
+          "size" in item && typeof item.size === "number"
+            ? item.size
+            : 0
+      }
+    ];
+  });
+}
 
 export function serializeProviderProfile(provider: DbProvider): ProviderProfile {
   return {
@@ -114,6 +156,7 @@ export function serializeDemandResponseRecord(
     deliveryApproach: response.deliveryApproach ?? "",
     etaLabel: response.etaLabel ?? "",
     confidence: response.confidence as DemandResponseRecord["confidence"],
+    builderArtifacts: serializeArtifactList(response.builderArtifacts),
     createdAt: response.createdAt.toISOString(),
     updatedAt: response.updatedAt.toISOString()
   };
@@ -396,6 +439,7 @@ export function serializeTaskRequestDetail(taskRequest: DbTaskRequest & {
     contextNote: taskRequest.contextNote ?? "",
     requesterOrg: taskRequest.requesterOrg ?? "",
     industry: taskRequest.industry ?? "",
+    customerArtifacts: serializeArtifactList(taskRequest.customerArtifacts),
     status: taskRequest.status as TaskRequestDetail["status"],
     createdAt: taskRequest.createdAt.toISOString(),
     updatedAt: taskRequest.updatedAt.toISOString(),
@@ -425,6 +469,7 @@ export function serializeTaskRunDetail(taskRun: DbTaskRun & {
       contextNote: taskRun.taskRequest.contextNote ?? "",
       requesterOrg: taskRun.taskRequest.requesterOrg ?? "",
       industry: taskRun.taskRequest.industry ?? "",
+      customerArtifacts: serializeArtifactList(taskRun.taskRequest.customerArtifacts),
       status: taskRun.taskRequest.status as TaskRunDetail["taskRequest"]["status"],
       createdAt: taskRun.taskRequest.createdAt.toISOString(),
       updatedAt: taskRun.taskRequest.updatedAt.toISOString(),
@@ -469,6 +514,7 @@ export function serializeDemandBoardItem(
     contextNote: taskRequest.contextNote ?? "",
     requesterOrg: taskRequest.requesterOrg ?? "",
     industry: taskRequest.industry ?? "",
+    customerArtifacts: serializeArtifactList(taskRequest.customerArtifacts),
     status: taskRequest.status as DemandBoardItem["status"],
     createdAt: taskRequest.createdAt.toISOString(),
     updatedAt: taskRequest.updatedAt.toISOString(),
@@ -513,6 +559,7 @@ export function serializeEngagementDetail(
       contextNote: engagement.taskRequest.contextNote ?? "",
       requesterOrg: engagement.taskRequest.requesterOrg ?? "",
       industry: engagement.taskRequest.industry ?? "",
+      customerArtifacts: serializeArtifactList(engagement.taskRequest.customerArtifacts),
       status:
         engagement.taskRequest.status as EngagementDetail["taskRequest"]["status"],
       createdAt: engagement.taskRequest.createdAt.toISOString(),

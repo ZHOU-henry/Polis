@@ -75,6 +75,7 @@ surfaces.
 - builder proof and ops health dashboard
 - early quote workflow with quote items and customer commercial response
 - provider verification tiers plus connector / governance framing
+- customer demand attachments and builder response attachments with multi-format upload
 
 ## Newest Direction
 

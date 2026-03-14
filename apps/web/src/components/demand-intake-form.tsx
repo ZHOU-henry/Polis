@@ -12,6 +12,7 @@ import { browserApiBasePath } from "../lib/api";
 import type { Locale } from "../lib/locale";
 import { formatTimestamp, humanizeToken } from "../lib/presenters";
 import { isReadOnlyPreviewMode } from "../lib/runtime";
+import { formatArtifactSize, uploadSelectedFiles } from "../lib/upload-client";
 
 type DemandIntakeFormProps = {
   agents: AgentDefinition[];
@@ -30,6 +31,7 @@ export function DemandIntakeForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [contextNote, setContextNote] = useState("");
+  const [artifacts, setArtifacts] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState<TaskRequestDetail | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +50,9 @@ export function DemandIntakeForm({
           taskTitle: "需求标题",
           taskDescription: "需求描述",
           context: "补充上下文",
+          artifacts: "环境附件",
+          artifactsHelp:
+            "支持上传 Word、PDF、图片、日志、表格、配置、压缩包等任何能帮助开发者理解部署环境的文件。",
           requesterPlaceholder: "例如：苏州光学装配厂",
           industryPlaceholder: "例如：工业质检",
           titlePlaceholder: "例如：需要一个异常缺陷复盘 Agent",
@@ -55,6 +60,7 @@ export function DemandIntakeForm({
             "说明问题是什么、希望 Agent 帮到哪一步、当前团队为什么需要它。",
           contextPlaceholder:
             "补充流程背景、现有系统限制、试点边界或交付偏好。",
+          artifactsEmpty: "当前没有待上传附件。",
           submit: "发布到需求板",
           submitting: "发布中...",
           readOnly: "只读预览",
@@ -78,6 +84,9 @@ export function DemandIntakeForm({
           taskTitle: "Demand title",
           taskDescription: "Demand description",
           context: "Extra context",
+          artifacts: "Environment files",
+          artifactsHelp:
+            "Upload any files that help builders understand the real deployment environment: Word, PDF, images, logs, spreadsheets, configs, archives, and more.",
           requesterPlaceholder: "Example: Suzhou Optics Assembly",
           industryPlaceholder: "Example: Industrial quality",
           titlePlaceholder: "Example: Need an agent for recurring defect triage",
@@ -85,6 +94,7 @@ export function DemandIntakeForm({
             "Explain the problem, how far the agent should help, and why the team needs it now.",
           contextPlaceholder:
             "Add workflow constraints, pilot boundaries, current tooling, or delivery preferences.",
+          artifactsEmpty: "No files selected yet.",
           submit: "Publish to board",
           submitting: "Publishing...",
           readOnly: "Read-only preview",
@@ -108,13 +118,16 @@ export function DemandIntakeForm({
     setError("");
     setSubmitted(null);
 
+    let uploadedArtifacts = [] as TaskRequestDetail["customerArtifacts"];
+
     const parsed = DemandBoardPublishInputSchema.safeParse({
       agentId,
       requesterOrg,
       industry,
       title,
       description,
-      contextNote
+      contextNote,
+      customerArtifacts: []
     });
 
     if (!parsed.success) {
@@ -125,12 +138,17 @@ export function DemandIntakeForm({
     setIsSubmitting(true);
 
     try {
+      uploadedArtifacts = await uploadSelectedFiles(artifacts);
+
       const response = await fetch(`${browserApiBasePath}/demand-board`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(parsed.data)
+        body: JSON.stringify({
+          ...parsed.data,
+          customerArtifacts: uploadedArtifacts
+        })
       });
 
       const payload = (await response.json()) as {
@@ -150,6 +168,7 @@ export function DemandIntakeForm({
       setTitle("");
       setDescription("");
       setContextNote("");
+      setArtifacts([]);
       startTransition(() => {
         router.refresh();
       });
@@ -240,6 +259,37 @@ export function DemandIntakeForm({
           />
         </label>
 
+        <label>
+          <span>{t.artifacts}</span>
+          <input
+            type="file"
+            multiple
+            onChange={(event) =>
+              setArtifacts(Array.from(event.target.files ?? []))
+            }
+            disabled={readOnlyPreview}
+          />
+          <span className="small">{t.artifactsHelp}</span>
+        </label>
+
+        <div className="timeline">
+          {artifacts.length === 0 ? (
+            <p>{t.artifactsEmpty}</p>
+          ) : (
+            artifacts.map((file) => (
+              <article key={`${file.name}-${file.size}`} className="timelineitem">
+                <div className="timelinehead">
+                  <p className="tagline">{file.name}</p>
+                  <span className="statuspill tone-neutral">
+                    {file.type || "file"}
+                  </span>
+                </div>
+                <p>{formatArtifactSize(file.size, locale)}</p>
+              </article>
+            ))
+          )}
+        </div>
+
         <button type="submit" disabled={isSubmitting || readOnlyPreview}>
           {readOnlyPreview
             ? t.readOnly
@@ -269,6 +319,21 @@ export function DemandIntakeForm({
                 {t.openRun}
               </a>
             </p>
+          ) : null}
+          {submitted.customerArtifacts.length > 0 ? (
+            <div className="timeline">
+              {submitted.customerArtifacts.map((artifact) => (
+                <article key={artifact.id} className="timelineitem">
+                  <div className="timelinehead">
+                    <p className="tagline">{artifact.originalName}</p>
+                    <span className="statuspill tone-neutral">
+                      {artifact.contentType || "file"}
+                    </span>
+                  </div>
+                  <p>{formatArtifactSize(artifact.size, locale)}</p>
+                </article>
+              ))}
+            </div>
           ) : null}
           <p className="tagline">
             {t.createdAt} {formatTimestamp(submitted.createdAt, locale)}

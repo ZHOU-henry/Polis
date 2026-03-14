@@ -184,13 +184,24 @@ export const EngagementIncidentStatusSchema = z.enum([
   "resolved"
 ]);
 
+export const UploadedArtifactSchema = z.object({
+  id: z.string(),
+  originalName: z.string(),
+  storedName: z.string(),
+  contentType: z.string(),
+  size: z.number().int().nonnegative()
+});
+
+export type UploadedArtifact = z.infer<typeof UploadedArtifactSchema>;
+
 export const TaskRequestInputSchema = z.object({
   agentId: z.string().min(1),
   title: z.string().min(3).max(120),
   description: z.string().min(10).max(2000),
   contextNote: z.string().max(1000).optional().default(""),
   requesterOrg: z.string().max(160).optional().default(""),
-  industry: z.string().max(120).optional().default("")
+  industry: z.string().max(120).optional().default(""),
+  customerArtifacts: z.array(UploadedArtifactSchema).max(20).optional().default([])
 });
 
 export type TaskRequestInput = z.infer<typeof TaskRequestInputSchema>;
@@ -219,7 +230,8 @@ export const DemandResponseInputSchema = z.object({
   proposalSummary: z.string().min(10).max(1200),
   deliveryApproach: z.string().max(1200).optional().default(""),
   etaLabel: z.string().max(120).optional().default(""),
-  confidence: DemandResponseConfidenceSchema.optional().default("medium")
+  confidence: DemandResponseConfidenceSchema.optional().default("medium"),
+  builderArtifacts: z.array(UploadedArtifactSchema).max(20).optional().default([])
 });
 
 export type DemandResponseInput = z.infer<typeof DemandResponseInputSchema>;

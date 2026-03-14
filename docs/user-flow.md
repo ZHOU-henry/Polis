@@ -26,6 +26,7 @@
 - demand title
 - demand description
 - recommended agent direction
+- customer environment files and deployment-context attachments
 
 ### Builder Response
 
@@ -33,6 +34,7 @@
 - proposal summary
 - delivery approach
 - ETA and confidence
+- builder-side files such as code samples, configs, API docs, and deployment notes
 
 ### Engagement
 
@@ -95,6 +97,7 @@
 - quote items: implemented
 - customer commercial response: implemented
 - provider verification tiers / connector / governance framing: implemented as a first 3.0 foundation
+- customer and builder attachment upload flow: implemented
 - run detail: implemented
 - operator review: implemented as a first minimal verdict flow
 - operator queue: implemented

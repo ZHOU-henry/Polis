@@ -253,6 +253,33 @@ export default async function TaskRequestPage({ params }: TaskRequestPageProps) 
             <h2>{copy.requestPage.context.title}</h2>
           </div>
           <p>{taskRequest.contextNote || copy.requestPage.context.empty}</p>
+          <div className="timeline">
+            {taskRequest.customerArtifacts.length === 0 ? (
+              <p>{locale === "zh" ? "当前没有客户附件。" : "No customer files attached yet."}</p>
+            ) : (
+              taskRequest.customerArtifacts.map((artifact) => (
+                <article key={artifact.id} className="timelineitem">
+                  <div className="timelinehead">
+                    <p className="tagline">{artifact.originalName}</p>
+                    <span className="statuspill tone-neutral">
+                      {artifact.contentType || "file"}
+                    </span>
+                  </div>
+                  <p className="tagline">
+                    {locale === "zh" ? "需求附件" : "Demand file"} / {artifact.size}
+                  </p>
+                  <a
+                    href={`/api/files/${artifact.storedName}`}
+                    className="cardlink"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {locale === "zh" ? "打开文件" : "Open file"}
+                  </a>
+                </article>
+              ))
+            )}
+          </div>
         </section>
 
         <section className="panel">
@@ -340,14 +367,36 @@ export default async function TaskRequestPage({ params }: TaskRequestPageProps) 
                       {humanizeToken(response.status, locale)}
                     </span>
                   </div>
-                  <p>{response.headline}</p>
-                  <p>{response.proposalSummary}</p>
-                  <p className="tagline">
-                    ETA / {response.etaLabel || "-"} / {humanizeToken(response.confidence, locale)}
-                  </p>
-                  <p className="timestamp">
-                    {formatTimestamp(response.updatedAt, locale)}
-                  </p>
+              <p>{response.headline}</p>
+              <p>{response.proposalSummary}</p>
+              <p className="tagline">
+                ETA / {response.etaLabel || "-"} / {humanizeToken(response.confidence, locale)}
+              </p>
+              {response.builderArtifacts.length > 0 ? (
+                <div className="timeline">
+                  {response.builderArtifacts.map((artifact) => (
+                    <article key={artifact.id} className="timelineitem">
+                      <div className="timelinehead">
+                        <p className="tagline">{artifact.originalName}</p>
+                        <span className="statuspill tone-neutral">
+                          {artifact.contentType || "file"}
+                        </span>
+                      </div>
+                      <a
+                        href={`/api/files/${artifact.storedName}`}
+                        className="cardlink"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {locale === "zh" ? "打开附件" : "Open file"}
+                      </a>
+                    </article>
+                  ))}
+                </div>
+              ) : null}
+              <p className="timestamp">
+                {formatTimestamp(response.updatedAt, locale)}
+              </p>
                 </article>
               ))
             )}

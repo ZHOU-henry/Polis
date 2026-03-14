@@ -12,6 +12,7 @@ import { browserApiBasePath } from "../lib/api";
 import type { Locale } from "../lib/locale";
 import { formatTimestamp, humanizeToken, toneClass } from "../lib/presenters";
 import { isReadOnlyPreviewMode } from "../lib/runtime";
+import { formatArtifactSize, uploadSelectedFiles } from "../lib/upload-client";
 
 type BuilderResponseFormProps = {
   initialRequest: TaskRequestDetail;
@@ -33,6 +34,7 @@ export function BuilderResponseForm({
   const [deliveryApproach, setDeliveryApproach] = useState("");
   const [etaLabel, setEtaLabel] = useState("");
   const [confidence, setConfidence] = useState<"high" | "medium" | "low">("medium");
+  const [artifacts, setArtifacts] = useState<File[]>([]);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,6 +53,9 @@ export function BuilderResponseForm({
         approach: "交付方式",
         eta: "预计周期",
         confidence: "把握度",
+        artifacts: "供给附件",
+        artifactsHelp:
+          "上传代码包、配置文件、API 文档、部署说明、接口示例或其他能帮助客户理解你方案的文件。",
         submit: "提交响应",
         submitting: "提交中...",
         invalid: "请补全开发者响应内容。",
@@ -58,7 +63,8 @@ export function BuilderResponseForm({
         latest: "当前响应列表",
         empty: "目前还没有开发者对这条需求提交响应。",
         readOnly: "只读预览",
-        createdAt: "提交于"
+        createdAt: "提交于",
+        noArtifacts: "当前没有待提交附件。"
       }
     : {
         eyebrow: "Builder Response",
@@ -70,6 +76,9 @@ export function BuilderResponseForm({
         approach: "Delivery approach",
         eta: "Estimated timeline",
         confidence: "Confidence",
+        artifacts: "Builder files",
+        artifactsHelp:
+          "Upload code bundles, config files, API docs, deployment notes, samples, or any files that help the customer understand the offer.",
         submit: "Submit response",
         submitting: "Submitting...",
         invalid: "Please complete the response fields clearly.",
@@ -77,7 +86,8 @@ export function BuilderResponseForm({
         latest: "Current responses",
         empty: "No builders have responded to this demand yet.",
         readOnly: "Read-only preview",
-        createdAt: "Created at"
+        createdAt: "Created at",
+        noArtifacts: "No files selected yet."
       };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -91,13 +101,16 @@ export function BuilderResponseForm({
     setError("");
     setIsSubmitting(true);
 
+    let uploadedArtifacts = [] as TaskRequestDetail["responses"][number]["builderArtifacts"];
+
     const parsed = DemandResponseInputSchema.safeParse({
       providerId,
       headline,
       proposalSummary,
       deliveryApproach,
       etaLabel,
-      confidence
+      confidence,
+      builderArtifacts: []
     });
 
     if (!parsed.success) {
@@ -107,6 +120,8 @@ export function BuilderResponseForm({
     }
 
     try {
+      uploadedArtifacts = await uploadSelectedFiles(artifacts);
+
       const response = await fetch(
         `${browserApiBasePath}/task-requests/${request.id}/responses`,
         {
@@ -114,7 +129,10 @@ export function BuilderResponseForm({
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(parsed.data)
+          body: JSON.stringify({
+            ...parsed.data,
+            builderArtifacts: uploadedArtifacts
+          })
         }
       );
 
@@ -135,6 +153,7 @@ export function BuilderResponseForm({
       setDeliveryApproach("");
       setEtaLabel("");
       setConfidence("medium");
+      setArtifacts([]);
       startTransition(() => {
         router.refresh();
       });
@@ -227,6 +246,37 @@ export function BuilderResponseForm({
           </label>
         </div>
 
+        <label>
+          <span>{t.artifacts}</span>
+          <input
+            type="file"
+            multiple
+            onChange={(event) =>
+              setArtifacts(Array.from(event.target.files ?? []))
+            }
+            disabled={readOnlyPreview}
+          />
+          <span className="small">{t.artifactsHelp}</span>
+        </label>
+
+        <div className="timeline">
+          {artifacts.length === 0 ? (
+            <p>{t.noArtifacts}</p>
+          ) : (
+            artifacts.map((file) => (
+              <article key={`${file.name}-${file.size}`} className="timelineitem">
+                <div className="timelinehead">
+                  <p className="tagline">{file.name}</p>
+                  <span className="statuspill tone-neutral">
+                    {file.type || "file"}
+                  </span>
+                </div>
+                <p>{formatArtifactSize(file.size, locale)}</p>
+              </article>
+            ))
+          )}
+        </div>
+
         <button type="submit" disabled={isSubmitting || readOnlyPreview}>
           {readOnlyPreview ? t.readOnly : isSubmitting ? t.submitting : t.submit}
         </button>
@@ -254,6 +304,21 @@ export function BuilderResponseForm({
                   <p className="tagline">
                     ETA / {response.etaLabel} / {humanizeToken(response.confidence, locale)}
                   </p>
+                ) : null}
+                {response.builderArtifacts.length > 0 ? (
+                  <div className="timeline">
+                    {response.builderArtifacts.map((artifact) => (
+                      <article key={artifact.id} className="timelineitem">
+                        <div className="timelinehead">
+                          <p className="tagline">{artifact.originalName}</p>
+                          <span className="statuspill tone-neutral">
+                            {artifact.contentType || "file"}
+                          </span>
+                        </div>
+                        <p>{formatArtifactSize(artifact.size, locale)}</p>
+                      </article>
+                    ))}
+                  </div>
                 ) : null}
                 <p className="timestamp">
                   {t.createdAt} {formatTimestamp(response.createdAt, locale)}
