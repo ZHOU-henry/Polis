@@ -6,6 +6,11 @@ export const ProviderTypeSchema = z.enum([
   "company",
   "independent"
 ]);
+export const VerificationTierSchema = z.enum([
+  "listed",
+  "verified",
+  "strategic"
+]);
 export const ProvenanceStatusSchema = z.enum([
   "seeded",
   "reviewed_external",
@@ -19,6 +24,8 @@ export const ProviderProfileSchema = z.object({
   summary: z.string(),
   description: z.string(),
   type: ProviderTypeSchema,
+  verificationTier: VerificationTierSchema,
+  verificationSummary: z.string(),
   website: z.string(),
   tags: z.array(z.string()),
   status: AgentStatusSchema
@@ -32,6 +39,8 @@ export const ProviderProfileInputSchema = z.object({
   summary: z.string().min(10).max(240),
   description: z.string().min(10).max(1200),
   type: ProviderTypeSchema,
+  verificationTier: VerificationTierSchema.default("listed"),
+  verificationSummary: z.string().min(3).max(300).default("Listed builder profile."),
   website: z.string().max(240).optional().default(""),
   tags: z.array(z.string()).max(8).default([]),
   status: AgentStatusSchema.default("active")
@@ -122,6 +131,8 @@ export const EngagementReviewVerdictSchema = z.enum([
 
 export const EngagementAgreementStatusSchema = z.enum([
   "draft",
+  "sent",
+  "negotiating",
   "confirmed"
 ]);
 
@@ -644,6 +655,9 @@ const henryFirstPartyProvider: ProviderProfile = {
   description:
     "This provider profile represents Henry's own operator stack and the first-party agents used to launch Agora before outside builders join the supply side.",
   type: "first_party",
+  verificationTier: "strategic",
+  verificationSummary:
+    "First-party strategic launch cohort with direct platform stewardship.",
   website: "",
   tags: ["seeded", "launch-cohort", "operators"],
   status: "active"
@@ -658,6 +672,9 @@ const lingxiFactoryProvider: ProviderProfile = {
   description:
     "Lingxi Factory AI represents a specialized builder that turns production planning, exception handling, and shift coordination into agent products for manufacturing teams.",
   type: "company",
+  verificationTier: "verified",
+  verificationSummary:
+    "Scenario-specialized industrial builder with a clear manufacturing delivery posture.",
   website: "",
   tags: ["manufacturing", "operations", "industrial"],
   status: "active"
@@ -672,6 +689,9 @@ const praxisQualityProvider: ProviderProfile = {
   description:
     "Praxis Quality Lab models a supply-side team that packages industrial inspection expertise into deployable agent products for factories and quality teams.",
   type: "company",
+  verificationTier: "verified",
+  verificationSummary:
+    "Industrial quality builder with explicit inspection and traceability delivery framing.",
   website: "",
   tags: ["quality", "vision", "inspection"],
   status: "active"
@@ -686,6 +706,9 @@ const relayFieldProvider: ProviderProfile = {
   description:
     "Relay Field Systems represents the kind of builder that adapts agent products to logistics throughput, maintenance routines, and real-world operational constraints.",
   type: "independent",
+  verificationTier: "listed",
+  verificationSummary:
+    "Listed builder with a strong field-operations narrative and growing delivery footprint.",
   website: "",
   tags: ["warehouse", "field", "maintenance"],
   status: "active"

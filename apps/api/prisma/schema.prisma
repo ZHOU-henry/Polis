@@ -13,6 +13,8 @@ model ProviderProfile {
   summary     String
   description String
   type        String
+  verificationTier String @default("listed")
+  verificationSummary String @default("Listed builder profile with basic marketplace metadata.")
   website     String?
   tags        String[]
   status      String

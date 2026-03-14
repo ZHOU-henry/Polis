@@ -2,9 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MediaCard } from "../../../components/media-card";
 import { getProviderDetail } from "../../../lib/api";
+import { getBuilderProofSnapshot } from "../../../lib/builder-proof";
 import { localizeProvider } from "../../../lib/catalog-copy";
 import { getCopy } from "../../../lib/copy";
 import { summarizeProviderOperatingMetrics } from "../../../lib/engagement-intelligence";
+import { getGovernanceFrames, getProviderConnectorPacks } from "../../../lib/enterprise-posture";
 import { getProviderVisuals } from "../../../lib/industry-visuals";
 import { getLocale } from "../../../lib/locale";
 import { humanizeToken, toneClass } from "../../../lib/presenters";
@@ -30,6 +32,9 @@ export default async function ProviderDetailPage({
   const providerVisuals = getProviderVisuals(provider, locale);
   const localizedProvider = localizeProvider(provider, locale);
   const providerMetrics = summarizeProviderOperatingMetrics(provider);
+  const builderProof = getBuilderProofSnapshot(provider.slug, locale);
+  const connectorPacks = getProviderConnectorPacks(provider.slug, locale);
+  const governanceFrames = getGovernanceFrames(locale);
   const responseCopy =
     locale === "zh"
       ? {
@@ -102,6 +107,10 @@ export default async function ProviderDetailPage({
               <strong>{humanizeToken(localizedProvider.type, locale)}</strong>
             </article>
             <article className="signalitem">
+              <span>{locale === "zh" ? "验证层级" : "Verification tier"}</span>
+              <strong>{humanizeToken(localizedProvider.verificationTier, locale)}</strong>
+            </article>
+            <article className="signalitem">
               <span>{copy.providerPage.platformRole}</span>
               <strong>{copy.providerPage.platformRoleValue}</strong>
             </article>
@@ -111,6 +120,27 @@ export default async function ProviderDetailPage({
             </article>
           </div>
         </aside>
+      </section>
+
+      <section className="panel">
+        <div className="sectionhead">
+          <p className="eyebrow">
+            {locale === "zh" ? "Builder Proof" : "Builder Proof"}
+          </p>
+          <h2>{builderProof.proofTitle}</h2>
+          <p className="lede small">{builderProof.proofSummary}</p>
+        </div>
+        <div className="chiprow">
+          <span className="statuspill tone-emerald">{builderProof.verificationLabel}</span>
+        </div>
+        <div className="surface-grid surface-grid-two">
+          {builderProof.evidence.map((item) => (
+            <article key={item.title} className="card">
+              <h3>{item.title}</h3>
+              <p>{item.detail}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <section className="panel">
@@ -156,6 +186,42 @@ export default async function ProviderDetailPage({
                 ? `${providerMetrics.expansionSignals} 个 engagement 已经显示出扩大部署机会。`
                 : `${providerMetrics.expansionSignals} engagements already show credible scale-out potential.`}
             </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="panel">
+        <div className="sectionhead">
+          <p className="eyebrow">{locale === "zh" ? "Enterprise Readiness" : "Enterprise Readiness"}</p>
+          <h2>
+            {locale === "zh"
+              ? "3.0 的第一步是让 Builder 的企业交易与交付准备度更清晰"
+              : "The first step toward 3.0 is making enterprise transaction and delivery readiness more legible"}
+          </h2>
+        </div>
+        <div className="surface-grid surface-grid-two">
+          <article className="card">
+            <h3>{locale === "zh" ? "验证层级" : "Verification tier"}</h3>
+            <p className="tagline">{humanizeToken(localizedProvider.verificationTier, locale)}</p>
+            <p>{localizedProvider.verificationSummary}</p>
+          </article>
+          <article className="card">
+            <h3>{locale === "zh" ? "Connector Packs" : "Connector Packs"}</h3>
+            <div className="chiprow">
+              {connectorPacks.map((item) => (
+                <span key={item} className="datachip">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </article>
+          <article className="card">
+            <h3>{locale === "zh" ? "治理框架" : "Governance frame"}</h3>
+            <ul>
+              {governanceFrames.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
           </article>
         </div>
       </section>

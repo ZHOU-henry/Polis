@@ -120,6 +120,24 @@ const seededResponses = [
 ] as const;
 
 export async function syncSeededMarketplaceData() {
+  await prisma.runEvent.deleteMany({
+    where: {
+      taskRun: {
+        taskRequestId: {
+          in: seededDemands.map((demand) => demand.id)
+        }
+      }
+    }
+  });
+
+  await prisma.taskRun.deleteMany({
+    where: {
+      taskRequestId: {
+        in: seededDemands.map((demand) => demand.id)
+      }
+    }
+  });
+
   for (const demand of seededDemands) {
     await prisma.taskRequest.upsert({
       where: { id: demand.id },
@@ -141,34 +159,6 @@ export async function syncSeededMarketplaceData() {
         requesterOrg: demand.requesterOrg,
         industry: demand.industry,
         status: "submitted"
-      }
-    });
-
-    await prisma.taskRun.upsert({
-      where: { id: demand.runId },
-      update: {
-        status: "submitted",
-        latestMessage: "Demand published to the builder board."
-      },
-      create: {
-        id: demand.runId,
-        taskRequestId: demand.id,
-        status: "submitted",
-        latestMessage: "Demand published to the builder board."
-      }
-    });
-
-    await prisma.runEvent.upsert({
-      where: { id: demand.eventId },
-      update: {
-        eventType: "submitted",
-        message: "Demand published to the builder board."
-      },
-      create: {
-        id: demand.eventId,
-        taskRunId: demand.runId,
-        eventType: "submitted",
-        message: "Demand published to the builder board."
       }
     });
   }
@@ -252,5 +242,37 @@ export async function syncSeededMarketplaceData() {
       taskRequestId: response.taskRequestId,
       mode: "demo"
     });
+
+    const demand = seededDemands.find((item) => item.id === response.taskRequestId);
+
+    if (demand) {
+      await prisma.taskRun.upsert({
+        where: { id: demand.runId },
+        update: {
+          status: "submitted",
+          latestMessage: "Accepted builder response created the delivery run."
+        },
+        create: {
+          id: demand.runId,
+          taskRequestId: demand.id,
+          status: "submitted",
+          latestMessage: "Accepted builder response created the delivery run."
+        }
+      });
+
+      await prisma.runEvent.upsert({
+        where: { id: demand.eventId },
+        update: {
+          eventType: "submitted",
+          message: "Delivery run created after the builder response was accepted."
+        },
+        create: {
+          id: demand.eventId,
+          taskRunId: demand.runId,
+          eventType: "submitted",
+          message: "Delivery run created after the builder response was accepted."
+        }
+      });
+    }
   }
 }

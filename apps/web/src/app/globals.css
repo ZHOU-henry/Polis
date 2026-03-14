@@ -90,6 +90,39 @@ body {
   gap: 10px;
 }
 
+.deployment-graph {
+  display: grid;
+  gap: 16px;
+}
+
+.deployment-node {
+  position: relative;
+  padding: 18px 18px 10px;
+  border-radius: 22px;
+  border: 1px solid rgba(125, 180, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.deployment-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  opacity: 0.8;
+}
+
+.deployment-arrow span {
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(108, 232, 255, 0.12),
+    rgba(143, 125, 255, 0.9),
+    rgba(137, 255, 168, 0.12)
+  );
+  border-radius: 999px;
+}
+
 a {
   color: inherit;
 }

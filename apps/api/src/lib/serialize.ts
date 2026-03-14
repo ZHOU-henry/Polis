@@ -47,6 +47,9 @@ export function serializeProviderProfile(provider: DbProvider): ProviderProfile 
     summary: provider.summary,
     description: provider.description,
     type: provider.type as ProviderProfile["type"],
+    verificationTier:
+      provider.verificationTier as ProviderProfile["verificationTier"],
+    verificationSummary: provider.verificationSummary,
     website: provider.website ?? "",
     tags: provider.tags,
     status: provider.status as ProviderProfile["status"]
@@ -309,6 +312,8 @@ export function serializeAgentDefinition(
           description:
             "Provider data is unavailable for this agent. Refresh the catalog sync before relying on this record.",
           type: "company",
+          verificationTier: "listed",
+          verificationSummary: "Provider verification data is unavailable.",
           website: "",
           tags: [],
           status: "draft"

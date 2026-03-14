@@ -100,6 +100,9 @@ export default async function OpsPage() {
             <Link href="/engagements" className="actionlink">
               {t.secondary}
             </Link>
+            <Link href="/ops/health" className="actionlink">
+              {locale === "zh" ? "健康看板" : "Health board"}
+            </Link>
           </div>
         </div>
 

@@ -384,6 +384,10 @@ export default async function BuildersPage() {
               </div>
               <h3>{provider.name}</h3>
               <p>{provider.summary}</p>
+              <p className="tagline">
+                {locale === "zh" ? "验证层级" : "Verification tier"} /{" "}
+                {humanizeToken(provider.verificationTier, locale)}
+              </p>
               <Link href={`/providers/${provider.slug}`} className="cardlink">
                 {t.actionProvider}
               </Link>

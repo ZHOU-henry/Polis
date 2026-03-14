@@ -92,6 +92,8 @@ export async function createProviderProfile(input: ProviderProfileInput) {
       summary: input.summary,
       description: input.description,
       type: input.type,
+      verificationTier: input.verificationTier,
+      verificationSummary: input.verificationSummary,
       website: input.website,
       tags: input.tags,
       status: input.status

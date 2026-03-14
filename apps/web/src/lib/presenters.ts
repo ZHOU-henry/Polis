@@ -55,8 +55,13 @@ const tokenLabelsZh: Record<string, string> = {
   seeded: "种子供给",
   reviewed_external: "已审核外部来源",
   mixed: "混合来源",
+  listed: "已挂牌",
+  verified: "已验证",
+  strategic: "战略级",
   confirmed: "已确认",
   pending: "待确认",
+  sent: "已发出",
+  negotiating: "谈判中",
   issues_reported: "已反馈问题",
   expansion_requested: "希望扩展",
   acknowledged: "已确认收到",
@@ -139,6 +144,8 @@ export function toneClass(value: string | null | undefined) {
     case "delivered":
     case "resolved":
     case "stable":
+    case "verified":
+    case "strategic":
       return "tone-emerald";
     case "failed":
     case "rejected":
@@ -155,12 +162,14 @@ export function toneClass(value: string | null | undefined) {
     case "in_review":
     case "pending":
     case "watch":
+    case "sent":
       return "tone-amber";
     case "active":
     case "interactive":
     case "building":
     case "expansion_requested":
     case "expansion":
+    case "negotiating":
       return "tone-violet";
     case "running":
     case "kickoff":

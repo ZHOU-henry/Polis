@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getEngagements } from "../../lib/api";
 import { localizeProvider } from "../../lib/catalog-copy";
+import { getEngagementHealth } from "../../lib/engagement-intelligence";
 import { getLocale } from "../../lib/locale";
 import { formatTimestamp, humanizeToken, toneClass } from "../../lib/presenters";
 
@@ -10,6 +11,14 @@ export default async function EngagementsPage() {
     ...engagement,
     provider: localizeProvider(engagement.provider, locale)
   }));
+  const expansionPipeline = engagements.filter(
+    (engagement) =>
+      engagement.customerConfirmationStatus === "expansion_requested" ||
+      getEngagementHealth(engagement) === "expansion"
+  );
+  const blocked = engagements.filter(
+    (engagement) => getEngagementHealth(engagement) === "blocked"
+  );
 
   const t =
     locale === "zh"
@@ -46,6 +55,37 @@ export default async function EngagementsPage() {
       </section>
 
       <section className="panel">
+        <div className="sectionhead">
+          <p className="eyebrow">
+            {locale === "zh" ? "Expansion Pipeline" : "Expansion Pipeline"}
+          </p>
+          <h2>
+            {locale === "zh"
+              ? "把试点成功后可能扩开的对象单独抽出来"
+              : "Pull out the engagements that can credibly expand after the pilot"}
+          </h2>
+        </div>
+        <div className="surface-grid surface-grid-two">
+          <article className="card">
+            <h3>{locale === "zh" ? "扩展候选" : "Expansion candidates"}</h3>
+            <p>
+              {locale === "zh"
+                ? `${expansionPipeline.length} 个 engagement 已经带出明显扩展信号。`
+                : `${expansionPipeline.length} engagements already carry explicit expansion signals.`}
+            </p>
+          </article>
+          <article className="card">
+            <h3>{locale === "zh" ? "风险拦截" : "Risk gates"}</h3>
+            <p>
+              {locale === "zh"
+                ? `${blocked.length} 个 engagement 仍然处于阻塞状态，不能直接进入扩展。`
+                : `${blocked.length} engagements are still blocked and should not move into expansion yet.`}
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="panel">
         <div className="timeline">
           {engagements.length === 0 ? (
             <p>{t.empty}</p>
@@ -60,6 +100,16 @@ export default async function EngagementsPage() {
                 </div>
                 <p>{engagement.title}</p>
                 <p>{engagement.summary}</p>
+                <p className="tagline">
+                  {locale === "zh" ? "客户确认" : "Customer confirmation"} /{" "}
+                  {engagement.customerConfirmationStatus
+                    ? humanizeToken(engagement.customerConfirmationStatus, locale)
+                    : locale === "zh"
+                      ? "未开始"
+                      : "Not started"}
+                  {" / "}
+                  {locale === "zh" ? "开放 incident" : "Open incidents"} / {engagement.openIncidentCount}
+                </p>
                 <p className="timestamp">{formatTimestamp(engagement.createdAt, locale)}</p>
                 <Link href={`/engagements/${engagement.id}`} className="cardlink">
                   {t.action}

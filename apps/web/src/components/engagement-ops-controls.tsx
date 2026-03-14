@@ -25,6 +25,7 @@ type EngagementOpsControlsProps = {
 const engagementStatuses = ["kickoff", "scoping", "building", "review", "delivered"] as const;
 const deliverableStatuses = ["planned", "in_progress", "in_review", "approved", "needs_work"] as const;
 const reviewVerdicts = ["approved", "needs_work"] as const;
+const agreementStatuses = ["draft", "sent", "negotiating", "confirmed"] as const;
 
 export function EngagementOpsControls({
   initialEngagement,
@@ -42,7 +43,9 @@ export function EngagementOpsControls({
   const [deliverableTitle, setDeliverableTitle] = useState("");
   const [deliverableSummary, setDeliverableSummary] = useState("");
   const [deliverableType, setDeliverableType] = useState("");
-  const [agreementStatus, setAgreementStatus] = useState<"draft" | "confirmed">(
+  const [agreementStatus, setAgreementStatus] = useState<
+    (typeof agreementStatuses)[number]
+  >(
     initialEngagement.agreement?.status ?? "draft"
   );
   const [agreementMode, setAgreementMode] = useState(
@@ -583,12 +586,17 @@ export function EngagementOpsControls({
             <select
               value={agreementStatus}
               onChange={(event) =>
-                setAgreementStatus(event.target.value as "draft" | "confirmed")
+                setAgreementStatus(
+                  event.target.value as (typeof agreementStatuses)[number]
+                )
               }
               disabled={pendingKey.length > 0}
             >
-              <option value="draft">{humanizeToken("draft", locale)}</option>
-              <option value="confirmed">{humanizeToken("confirmed", locale)}</option>
+              {agreementStatuses.map((status) => (
+                <option key={status} value={status}>
+                  {humanizeToken(status, locale)}
+                </option>
+              ))}
             </select>
           </label>
           <label>

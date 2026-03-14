@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BuilderEngagementControls } from "../../../components/builder-engagement-controls";
 import { CustomerEngagementControls } from "../../../components/customer-engagement-controls";
+import { DeploymentGraph } from "../../../components/deployment-graph";
 import { EngagementOpsControls } from "../../../components/engagement-ops-controls";
 import { MediaCard } from "../../../components/media-card";
 import { getEngagement } from "../../../lib/api";
@@ -180,6 +181,8 @@ export default async function EngagementDetailPage({
           </div>
         </aside>
       </section>
+
+      <DeploymentGraph engagement={engagement} locale={locale} />
 
       <section className="panel">
         <div className="sectionhead">

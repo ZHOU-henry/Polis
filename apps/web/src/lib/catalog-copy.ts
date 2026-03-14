@@ -26,31 +26,38 @@ const translatedTags: Record<string, string> = {
 
 const providerZh: Record<
   string,
-  Pick<ProviderProfile, "name" | "summary" | "description">
+  Pick<
+    ProviderProfile,
+    "name" | "summary" | "description" | "verificationSummary"
+  >
 > = {
   "henry-first-party": {
     name: "Henry 第一方种子开发者",
     summary: "Agora 启动阶段的第一方开发者供给，用于验证平台供给侧与交付链路。",
     description:
-      "这个开发者档案代表 Henry 自己的 Agent 能力与第一方供给，用于把 Agora 从概念推进到可以被客户和开发者同时理解的平台。"
+      "这个开发者档案代表 Henry 自己的 Agent 能力与第一方供给，用于把 Agora 从概念推进到可以被客户和开发者同时理解的平台。",
+    verificationSummary: "第一方战略供给，直接参与平台定义与交付标准。"
   },
   "lingxi-factory-ai": {
     name: "灵析工厂智能",
     summary: "专注制造排产、工厂指挥和产线决策支持的工业 Agent 开发者。",
     description:
-      "灵析工厂智能代表一种面向制造企业的开发者侧团队，把生产节奏、异常处理和班组协同封装为垂直 Agent 产品。"
+      "灵析工厂智能代表一种面向制造企业的开发者侧团队，把生产节奏、异常处理和班组协同封装为垂直 Agent 产品。",
+    verificationSummary: "已验证的制造业 Builder，交付边界和场景叙事清晰。"
   },
   "praxis-quality-lab": {
     name: "Praxis 质检实验室",
     summary: "聚焦工业视觉质检、追溯与缺陷复核工作流的 Builder 档案。",
     description:
-      "Praxis 质检实验室代表把工业质检经验产品化的供给侧团队，目标是让工厂的图像检验与问题回传具备更好的速度和闭环。"
+      "Praxis 质检实验室代表把工业质检经验产品化的供给侧团队，目标是让工厂的图像检验与问题回传具备更好的速度和闭环。",
+    verificationSummary: "已验证的工业质检 Builder，适合缺陷分流与追溯场景。"
   },
   "relay-field-systems": {
     name: "Relay 现场系统",
     summary: "聚焦仓储、运维与一线流程增效的开发者侧团队。",
     description:
-      "Relay 现场系统代表能够把仓储调度、现场维修和一线知识辅助做成 Agent 产品的实战型 Builder。"
+      "Relay 现场系统代表能够把仓储调度、现场维修和一线知识辅助做成 Agent 产品的实战型 Builder。",
+    verificationSummary: "已挂牌 Builder，现场运营叙事强，仍需要更多持续交付证据。"
   }
 };
 
@@ -166,6 +173,8 @@ export function localizeProvider<T extends ProviderProfile | ProviderProfileDeta
     name: translated?.name ?? provider.name,
     summary: translated?.summary ?? provider.summary,
     description: translated?.description ?? provider.description,
+    verificationSummary:
+      translated?.verificationSummary ?? provider.verificationSummary,
     tags: provider.tags.map((tag) => translatedTags[tag] ?? tag),
     ...("agents" in provider
       ? {
