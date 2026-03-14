@@ -9,15 +9,24 @@ PASSWORD_FILE="$STATE_DIR/password"
 URL_FILE="$STATE_DIR/public-url"
 LOG_FILE="$STATE_DIR/cloudflared.log"
 PID_FILE="$STATE_DIR/cloudflared.pid"
-PASSWORD="${1:-}"
+MODE_FILE="$STATE_DIR/mode"
+MODE="readonly"
+PASSWORD=""
 
 usage() {
   cat <<'EOF'
 Usage:
+  ./scripts/start-public-preview.sh [readonly|interactive] [PASSWORD]
   ./scripts/start-public-preview.sh [PASSWORD]
 
-Starts Agora in read-only mode with a password gate, then exposes the web app
-through a temporary HTTPS Cloudflare Quick Tunnel.
+Starts Agora in password-gated public mode, then exposes the web app through a
+temporary HTTPS Cloudflare Quick Tunnel.
+
+Mode defaults to `readonly`.
+
+If `interactive` is chosen:
+  - write actions stay enabled after password login
+  - a database export backup is created before startup
 
 If PASSWORD is omitted:
   - reuse the last saved password if present
@@ -25,9 +34,16 @@ If PASSWORD is omitted:
 EOF
 }
 
-if [[ "$PASSWORD" == "-h" || "$PASSWORD" == "--help" ]]; then
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage
   exit 0
+fi
+
+if [[ "${1:-}" == "readonly" || "${1:-}" == "interactive" ]]; then
+  MODE="$1"
+  PASSWORD="${2:-}"
+else
+  PASSWORD="${1:-}"
 fi
 
 mkdir -p "$STATE_DIR" "$BIN_DIR"
@@ -89,12 +105,22 @@ if [[ -f "$PID_FILE" ]]; then
 fi
 
 rm -f "$URL_FILE" "$LOG_FILE"
+printf '%s\n' "$MODE" > "$MODE_FILE"
 
 "$SCRIPT_DIR/stop-preview.sh" >/dev/null 2>&1 || true
-"$SCRIPT_DIR/start-preview.sh" readonly "$PASSWORD"
+if [[ "$MODE" == "interactive" ]]; then
+  BACKUP_PATH="$STATE_DIR/agora_dev_before_public_interactive_$(date +%Y%m%d_%H%M%S).sql"
+  "$SCRIPT_DIR/export-db.sh" "$BACKUP_PATH" >/dev/null
+  "$SCRIPT_DIR/start-preview.sh" interactive "$PASSWORD"
+else
+  "$SCRIPT_DIR/start-preview.sh" readonly "$PASSWORD"
+fi
 
 for _ in $(seq 1 45); do
   if "$SCRIPT_DIR/check-preview.sh" >/dev/null 2>&1; then
+    if [[ "$MODE" == "interactive" ]]; then
+      break
+    fi
     if curl -fsS http://127.0.0.1:3001/runtime 2>/dev/null | grep -q '"previewReadOnly":true'; then
       break
     fi
@@ -102,7 +128,7 @@ for _ in $(seq 1 45); do
   sleep 2
 done
 
-if ! curl -fsS http://127.0.0.1:3001/runtime 2>/dev/null | grep -q '"previewReadOnly":true'; then
+if [[ "$MODE" == "readonly" ]] && ! curl -fsS http://127.0.0.1:3001/runtime 2>/dev/null | grep -q '"previewReadOnly":true'; then
   echo "Readonly Agora preview did not become healthy in time."
   exit 1
 fi
@@ -136,6 +162,7 @@ printf '%s\n' "$PUBLIC_URL" > "$URL_FILE"
 chmod 0600 "$URL_FILE"
 
 echo "Agora public preview is live."
+echo "Mode: $MODE"
 echo "URL: $PUBLIC_URL"
 echo "Password: $PASSWORD"
 echo "Tunnel log: $LOG_FILE"

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EngagementOpsControls } from "../../../components/engagement-ops-controls";
 import { MediaCard } from "../../../components/media-card";
 import { getEngagement } from "../../../lib/api";
 import { localizeAgent, localizeProvider } from "../../../lib/catalog-copy";
@@ -211,6 +212,8 @@ export default async function EngagementDetailPage({
           ))}
         </div>
       </section>
+
+      <EngagementOpsControls initialEngagement={engagement} locale={locale} />
 
       <section className="panel">
         <div className="sectionhead">

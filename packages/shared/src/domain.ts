@@ -170,6 +170,14 @@ export type EngagementMilestoneRecord = z.infer<
   typeof EngagementMilestoneRecordSchema
 >;
 
+export const EngagementStatusUpdateInputSchema = z.object({
+  status: EngagementStatusSchema
+});
+
+export type EngagementStatusUpdateInput = z.infer<
+  typeof EngagementStatusUpdateInputSchema
+>;
+
 export const EngagementDeliverableRecordSchema = z.object({
   id: z.string(),
   engagementId: z.string(),
@@ -185,6 +193,14 @@ export type EngagementDeliverableRecord = z.infer<
   typeof EngagementDeliverableRecordSchema
 >;
 
+export const EngagementDeliverableStatusUpdateInputSchema = z.object({
+  status: EngagementDeliverableStatusSchema
+});
+
+export type EngagementDeliverableStatusUpdateInput = z.infer<
+  typeof EngagementDeliverableStatusUpdateInputSchema
+>;
+
 export const EngagementReviewRecordSchema = z.object({
   id: z.string(),
   engagementId: z.string(),
@@ -197,6 +213,14 @@ export const EngagementReviewRecordSchema = z.object({
 export type EngagementReviewRecord = z.infer<
   typeof EngagementReviewRecordSchema
 >;
+
+export const EngagementReviewInputSchema = z.object({
+  verdict: EngagementReviewVerdictSchema,
+  notes: z.string().min(3).max(1000),
+  deliverableId: z.string().optional().nullable()
+});
+
+export type EngagementReviewInput = z.infer<typeof EngagementReviewInputSchema>;
 
 export const TaskRunStatusSchema = z.enum([
   "submitted",

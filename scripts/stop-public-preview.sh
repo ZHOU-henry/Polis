@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname "$0")" && pwd)"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/agora-public-preview"
 PID_FILE="$STATE_DIR/cloudflared.pid"
 URL_FILE="$STATE_DIR/public-url"
+MODE_FILE="$STATE_DIR/mode"
 
 if [[ -f "$PID_FILE" ]]; then
   PID="$(cat "$PID_FILE" 2>/dev/null || true)"
@@ -17,6 +18,7 @@ if [[ -f "$PID_FILE" ]]; then
 fi
 
 rm -f "$URL_FILE"
+rm -f "$MODE_FILE"
 "$SCRIPT_DIR/stop-preview.sh"
 
 echo "Agora public preview stopped."

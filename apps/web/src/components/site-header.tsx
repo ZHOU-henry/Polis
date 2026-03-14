@@ -8,6 +8,7 @@ import { toneClass } from "../lib/presenters";
 
 type SiteHeaderProps = {
   readOnlyPreview: boolean;
+  accessProtected: boolean;
   locale: Locale;
   brandMeta: string;
   navItems: Array<{
@@ -22,6 +23,7 @@ type SiteHeaderProps = {
 
 export function SiteHeader({
   readOnlyPreview,
+  accessProtected,
   locale,
   brandMeta,
   navItems,
@@ -31,6 +33,14 @@ export function SiteHeader({
   localeOptions
 }: SiteHeaderProps) {
   const pathname = usePathname();
+  const logoutLabel = locale === "zh" ? "退出" : "Logout";
+
+  async function logout() {
+    await fetch("/api/access", {
+      method: "DELETE"
+    });
+    window.location.href = "/access";
+  }
 
   return (
     <header className="siteheader">
@@ -72,6 +82,11 @@ export function SiteHeader({
         >
           {readOnlyPreview ? modeReadOnly : modeInteractive}
         </span>
+        {accessProtected ? (
+          <button type="button" className="navlink" onClick={logout}>
+            {logoutLabel}
+          </button>
+        ) : null}
       </div>
     </header>
   );

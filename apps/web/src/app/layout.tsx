@@ -18,7 +18,34 @@ export default async function RootLayout({
 }>) {
   const locale = await getLocale();
   const readOnlyPreview = isReadOnlyPreviewMode();
+  const accessProtected = Boolean(process.env.AGORA_ACCESS_PASSWORD);
   const copy = getCopy(locale);
+
+  const modeReadOnly =
+    accessProtected && locale === "zh"
+      ? "公网 / 只读"
+      : accessProtected
+        ? "public / read-only"
+        : copy.header.modeReadOnly;
+  const modeInteractive =
+    accessProtected && locale === "zh"
+      ? "公网 / 可交互"
+      : accessProtected
+        ? "public / interactive"
+        : copy.header.modeInteractive;
+
+  const previewTitle =
+    accessProtected && !readOnlyPreview
+      ? locale === "zh"
+        ? "受保护的交互模式"
+        : "Protected interactive mode"
+      : copy.previewNotice.title;
+  const previewBody =
+    accessProtected && !readOnlyPreview
+      ? locale === "zh"
+        ? "已通过密码门保护。写操作当前生效，会写入正在运行的本地开发数据。"
+        : "Protected by the password gate. Write actions are live and will mutate the running local development data."
+      : copy.previewNotice.body;
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -35,15 +62,16 @@ export default async function RootLayout({
               locale={locale}
               brandMeta={copy.header.brandMeta}
               navItems={copy.header.navItems}
-              modeReadOnly={copy.header.modeReadOnly}
-              modeInteractive={copy.header.modeInteractive}
+              modeReadOnly={modeReadOnly}
+              modeInteractive={modeInteractive}
               localeLabel={copy.header.localeLabel}
               localeOptions={copy.header.localeOptions}
+              accessProtected={accessProtected}
             />
             <PreviewNotice
               readOnlyPreview={readOnlyPreview}
-              title={copy.previewNotice.title}
-              body={copy.previewNotice.body}
+              title={previewTitle}
+              body={previewBody}
             />
             {children}
           </div>

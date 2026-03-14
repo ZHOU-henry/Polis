@@ -2,6 +2,9 @@ import Fastify from "fastify";
 import {
   DemandResponseInputSchema,
   DemandResponseStatusUpdateInputSchema,
+  EngagementDeliverableStatusUpdateInputSchema,
+  EngagementReviewInputSchema,
+  EngagementStatusUpdateInputSchema,
   ReviewDecisionInputSchema,
   RunStatusUpdateInputSchema,
   TaskRequestInputSchema
@@ -11,7 +14,13 @@ import {
   listAgents,
   syncAgentDefinitions
 } from "./data/agents.js";
-import { getEngagementById, listEngagements } from "./data/engagements.js";
+import {
+  getEngagementById,
+  listEngagements,
+  submitEngagementReview,
+  updateEngagementDeliverableStatus,
+  updateEngagementStatus
+} from "./data/engagements.js";
 import { syncSeededMarketplaceData } from "./data/marketplace-seeds.js";
 import {
   getProviderById,
@@ -95,6 +104,75 @@ server.get("/engagements/:id", async (request, reply) => {
   return {
     item: engagement
   };
+});
+
+server.patch("/engagements/:id/status", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = EngagementStatusUpdateInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid engagement status update", parsed.error.flatten());
+  }
+
+  const engagement = await updateEngagementStatus(id, parsed.data);
+
+  if (!engagement) {
+    return notFound(reply, "Engagement not found");
+  }
+
+  return {
+    item: engagement
+  };
+});
+
+server.patch("/engagement-deliverables/:id/status", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = EngagementDeliverableStatusUpdateInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid deliverable status update", parsed.error.flatten());
+  }
+
+  const engagement = await updateEngagementDeliverableStatus(id, parsed.data);
+
+  if (!engagement) {
+    return notFound(reply, "Engagement deliverable not found");
+  }
+
+  return {
+    item: engagement
+  };
+});
+
+server.post("/engagements/:id/reviews", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const { id } = request.params as { id: string };
+  const parsed = EngagementReviewInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid engagement review", parsed.error.flatten());
+  }
+
+  const engagement = await submitEngagementReview(id, parsed.data);
+
+  if (!engagement) {
+    return notFound(reply, "Engagement not found");
+  }
+
+  return reply.code(201).send({
+    item: engagement
+  });
 });
 
 server.get("/agents/:slug", async (request, reply) => {

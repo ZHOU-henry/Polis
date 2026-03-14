@@ -6,6 +6,23 @@ import { getLocale } from "../../lib/locale";
 export default async function AccessPage() {
   const locale = await getLocale();
   const copy = getCopy(locale);
+  const readOnlyPreview = process.env.AGORA_PREVIEW_MODE === "readonly";
+  const modeValue =
+    locale === "zh"
+      ? readOnlyPreview
+        ? "只读"
+        : "可交互"
+      : readOnlyPreview
+        ? "read-only"
+        : "interactive";
+  const writesValue =
+    locale === "zh"
+      ? readOnlyPreview
+        ? "可浏览，不可写入"
+        : "登录后可写入、可修改、可交互"
+      : readOnlyPreview
+        ? "browseable, no writes"
+        : "writeable and interactive after login";
 
   return (
     <main className="page">
@@ -21,11 +38,11 @@ export default async function AccessPage() {
           <div className="signalstack">
             <article className="signalitem">
               <span>{copy.accessPage.modeLabel}</span>
-              <strong>{copy.accessPage.modeValue}</strong>
+              <strong>{modeValue}</strong>
             </article>
             <article className="signalitem">
               <span>{copy.accessPage.writesLabel}</span>
-              <strong>{copy.accessPage.writesValue}</strong>
+              <strong>{writesValue}</strong>
             </article>
           </div>
         </aside>

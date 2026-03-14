@@ -34,7 +34,11 @@ if [[ "$MODE" == "readonly" ]]; then
 else
   unset AGORA_PREVIEW_MODE || true
   unset NEXT_PUBLIC_AGORA_PREVIEW_MODE || true
-  unset AGORA_ACCESS_PASSWORD || true
+  if [[ -n "$PASSWORD" ]]; then
+    export AGORA_ACCESS_PASSWORD="$PASSWORD"
+  else
+    unset AGORA_ACCESS_PASSWORD || true
+  fi
 fi
 
 cd "$ROOT_DIR"

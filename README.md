@@ -117,6 +117,7 @@ In this mode:
 ./scripts/start-preview.sh interactive
 ./scripts/start-preview.sh readonly YOUR_PASSWORD
 ./scripts/start-public-preview.sh [PASSWORD]
+./scripts/start-public-preview.sh interactive YOUR_PASSWORD
 ./scripts/check-public-preview.sh
 ./scripts/stop-public-preview.sh
 ./scripts/check-preview.sh

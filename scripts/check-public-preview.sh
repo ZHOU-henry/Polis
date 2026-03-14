@@ -6,6 +6,7 @@ STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/agora-public-preview"
 URL_FILE="$STATE_DIR/public-url"
 PID_FILE="$STATE_DIR/cloudflared.pid"
 PASSWORD_FILE="$STATE_DIR/password"
+MODE_FILE="$STATE_DIR/mode"
 PUBLIC_STATUS=1
 TUNNEL_STATUS=1
 LOCAL_STATUS=1
@@ -25,6 +26,12 @@ if [[ -f "$PID_FILE" ]]; then
 else
   echo "tunnel=missing"
 fi
+
+MODE="readonly"
+if [[ -f "$MODE_FILE" ]]; then
+  MODE="$(cat "$MODE_FILE")"
+fi
+echo "mode=$MODE"
 
 if [[ -f "$URL_FILE" ]]; then
   PUBLIC_URL="$(cat "$URL_FILE")"
