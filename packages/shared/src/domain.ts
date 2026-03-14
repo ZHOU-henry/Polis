@@ -26,6 +26,19 @@ export const ProviderProfileSchema = z.object({
 
 export type ProviderProfile = z.infer<typeof ProviderProfileSchema>;
 
+export const ProviderProfileInputSchema = z.object({
+  slug: z.string().min(3).max(80),
+  name: z.string().min(2).max(120),
+  summary: z.string().min(10).max(240),
+  description: z.string().min(10).max(1200),
+  type: ProviderTypeSchema,
+  website: z.string().max(240).optional().default(""),
+  tags: z.array(z.string()).max(8).default([]),
+  status: AgentStatusSchema.default("active")
+});
+
+export type ProviderProfileInput = z.infer<typeof ProviderProfileInputSchema>;
+
 export const AgentDefinitionSchema = z.object({
   id: z.string(),
   slug: z.string(),
@@ -43,6 +56,22 @@ export const AgentDefinitionSchema = z.object({
 });
 
 export type AgentDefinition = z.infer<typeof AgentDefinitionSchema>;
+
+export const AgentDefinitionInputSchema = z.object({
+  providerId: z.string().min(1),
+  slug: z.string().min(3).max(80),
+  name: z.string().min(2).max(120),
+  summary: z.string().min(10).max(240),
+  description: z.string().min(10).max(1600),
+  provenanceStatus: ProvenanceStatusSchema.default("seeded"),
+  provenanceSummary: z.string().min(3).max(300),
+  tags: z.array(z.string()).max(10).default([]),
+  constraints: z.array(z.string()).max(10).default([]),
+  trustSignals: z.array(z.string()).max(10).default([]),
+  status: AgentStatusSchema.default("active")
+});
+
+export type AgentDefinitionInput = z.infer<typeof AgentDefinitionInputSchema>;
 
 export const TaskRequestStatusSchema = z.enum([
   "submitted",

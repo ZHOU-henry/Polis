@@ -54,6 +54,9 @@ export default async function BuildersPage() {
             <Link href="/demand" className="actionlink">
               {t.secondary}
             </Link>
+            <Link href="/builders/studio" className="actionlink">
+              {locale === "zh" ? "进入 Builder Studio" : "Open Builder Studio"}
+            </Link>
           </div>
         </div>
       </section>

@@ -246,7 +246,10 @@ export default async function AgentDetailPage({ params }: AgentDetailPageProps) 
         agentId={localizedAgent.id}
         agentName={localizedAgent.name}
         locale={locale}
-        copy={copy.intakeForm}
+        copy={{
+          ...copy.intakeForm,
+          title: copy.intakeForm.title(localizedAgent.name)
+        }}
         exampleTasks={intelligence?.exampleTasks}
       />
     </main>

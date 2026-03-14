@@ -17,7 +17,7 @@ type TaskIntakeFormProps = {
   locale: Locale;
   copy: {
     eyebrow: string;
-    title: (agentName: string) => string;
+    title: string;
     lede: string;
     previewDisabled: string;
     seededPrompts: string;
@@ -119,7 +119,7 @@ export function TaskIntakeForm({
     <section className="panel">
       <div className="sectionhead">
         <p className="eyebrow">{copy.eyebrow}</p>
-        <h2>{copy.title(agentName)}</h2>
+        <h2>{copy.title}</h2>
         <p className="lede small">{copy.lede}</p>
       </div>
       {readOnlyPreview ? (

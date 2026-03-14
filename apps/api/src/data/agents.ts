@@ -1,4 +1,7 @@
-import { agentDefinitions } from "@agora/shared/domain";
+import {
+  agentDefinitions,
+  type AgentDefinitionInput
+} from "@agora/shared/domain";
 import { prisma } from "../lib/prisma.js";
 import { serializeAgentDefinition } from "../lib/serialize.js";
 
@@ -60,4 +63,28 @@ export async function syncAgentDefinitions() {
       create: agentData
     });
   }
+}
+
+export async function createAgentDefinition(input: AgentDefinitionInput) {
+  const row = await prisma.agentDefinition.create({
+    data: {
+      id: crypto.randomUUID(),
+      slug: input.slug,
+      name: input.name,
+      summary: input.summary,
+      description: input.description,
+      providerId: input.providerId,
+      provenanceStatus: input.provenanceStatus,
+      provenanceSummary: input.provenanceSummary,
+      tags: input.tags,
+      constraints: input.constraints,
+      trustSignals: input.trustSignals,
+      status: input.status
+    },
+    include: {
+      provider: true
+    }
+  });
+
+  return serializeAgentDefinition(row);
 }

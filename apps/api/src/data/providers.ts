@@ -1,4 +1,4 @@
-import { providerProfiles } from "@agora/shared/domain";
+import { providerProfiles, type ProviderProfileInput } from "@agora/shared/domain";
 import { prisma } from "../lib/prisma.js";
 import {
   serializeProviderProfile,
@@ -63,4 +63,22 @@ export async function syncProviderProfiles() {
       create: provider
     });
   }
+}
+
+export async function createProviderProfile(input: ProviderProfileInput) {
+  const row = await prisma.providerProfile.create({
+    data: {
+      id: crypto.randomUUID(),
+      slug: input.slug,
+      name: input.name,
+      summary: input.summary,
+      description: input.description,
+      type: input.type,
+      website: input.website,
+      tags: input.tags,
+      status: input.status
+    }
+  });
+
+  return serializeProviderProfile(row);
 }

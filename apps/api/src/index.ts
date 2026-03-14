@@ -1,15 +1,18 @@
 import Fastify from "fastify";
 import {
+  AgentDefinitionInputSchema,
   DemandResponseInputSchema,
   DemandResponseStatusUpdateInputSchema,
   EngagementDeliverableStatusUpdateInputSchema,
   EngagementReviewInputSchema,
   EngagementStatusUpdateInputSchema,
+  ProviderProfileInputSchema,
   ReviewDecisionInputSchema,
   RunStatusUpdateInputSchema,
   TaskRequestInputSchema
 } from "@agora/shared/domain";
 import {
+  createAgentDefinition,
   getAgentBySlug,
   listAgents,
   syncAgentDefinitions
@@ -23,6 +26,7 @@ import {
 } from "./data/engagements.js";
 import { syncSeededMarketplaceData } from "./data/marketplace-seeds.js";
 import {
+  createProviderProfile,
   getProviderById,
   getProviderDetailBySlug,
   listProviders,
@@ -72,6 +76,24 @@ server.get("/providers", async () => {
   return {
     items: await listProviders()
   };
+});
+
+server.post("/providers", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const parsed = ProviderProfileInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid provider profile", parsed.error.flatten());
+  }
+
+  const item = await createProviderProfile(parsed.data);
+
+  return reply.code(201).send({
+    item
+  });
 });
 
 server.get("/providers/:slug", async (request, reply) => {
@@ -186,6 +208,33 @@ server.get("/agents/:slug", async (request, reply) => {
   return {
     item: agent
   };
+});
+
+server.post("/agents", async (request, reply) => {
+  if (isReadOnlyPreviewMode()) {
+    return conflict(reply, "Preview mode is read-only");
+  }
+
+  const parsed = AgentDefinitionInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return badRequest(reply, "Invalid agent definition", parsed.error.flatten());
+  }
+
+  const provider = await getProviderById(parsed.data.providerId);
+
+  if (!provider) {
+    return badRequest(reply, "Selected provider is not available", {
+      error: "PROVIDER_NOT_FOUND",
+      providerId: parsed.data.providerId
+    });
+  }
+
+  const item = await createAgentDefinition(parsed.data);
+
+  return reply.code(201).send({
+    item
+  });
 });
 
 server.get("/task-requests", async () => {
