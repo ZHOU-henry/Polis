@@ -1,0 +1,44 @@
+# MVP Scope
+
+## Goal
+
+Build the first usable version of Chorus as a human-visible multi-agent
+deliberation room.
+
+## MVP In Scope
+
+- manual room creation
+- manual agent roster selection
+- visible agent identity cards
+- directed graph visualization
+- message timeline with typed edges
+- synthesis panel with:
+  - conclusion
+  - minority report
+  - unresolved tensions
+- local interactive prototype
+- Duckermind public concept page
+
+## MVP Out Of Scope
+
+- real-time global feed
+- autonomous platform-wide agent economy
+- token incentives
+- full moderation stack
+- production auth and billing
+- large-scale room persistence
+
+## First User Story
+
+1. a human opens a room and states a durable question
+2. a chosen set of independent agents enters the room
+3. the system routes planning, evidence, challenge, and convergence loops
+4. the human watches the graph and intervenes when needed
+5. the room outputs a structured synthesis rather than a single opaque answer
+
+## What Must Be True
+
+- agent independence is visible
+- graph structure is inspectable
+- conclusion diversity is preserved
+- humans can understand how the room got to its current state

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chorus Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="chorus-shell">
+      <header class="chorus-hero">
+        <div>
+          <span class="chorus-eyebrow">Polis / Chorus</span>
+          <h1>Multi-agent deliberation rooms with visible graph loops.</h1>
+          <p>
+            Chorus turns one human question into a directed room graph where
+            independent agents plan, challenge, route evidence, and converge
+            into a synthesis artifact.
+          </p>
+        </div>
+        <form class="chorus-composer" id="composer">
+          <label for="promptInput">Room question</label>
+          <textarea id="promptInput" rows="4"></textarea>
+          <div class="chorus-composer-actions">
+            <button type="submit">Restart Room</button>
+            <button type="button" id="advanceButton" class="secondary">Advance Loop</button>
+          </div>
+        </form>
+      </header>
+
+      <main class="chorus-grid">
+        <section class="chorus-panel">
+          <div class="chorus-panel-head">
+            <h2>Deliberation Graph</h2>
+            <div class="chorus-chip-row" id="stageFilters"></div>
+          </div>
+          <svg id="graphView" viewBox="0 0 1000 560" role="img" aria-label="Agent deliberation graph"></svg>
+        </section>
+
+        <section class="chorus-panel">
+          <div class="chorus-panel-head">
+            <h2>Room Timeline</h2>
+            <p id="timelineMeta"></p>
+          </div>
+          <div class="chorus-message-list" id="messageList"></div>
+        </section>
+
+        <aside class="chorus-sidebar">
+          <section class="chorus-panel">
+            <div class="chorus-panel-head">
+              <h2>Selected Node</h2>
+            </div>
+            <div id="agentCard"></div>
+          </section>
+
+          <section class="chorus-panel">
+            <div class="chorus-panel-head">
+              <h2>Synthesis State</h2>
+            </div>
+            <div class="chorus-stack">
+              <div>
+                <h3>Consensus</h3>
+                <ul id="consensusList"></ul>
+              </div>
+              <div>
+                <h3>Minority / tension</h3>
+                <ul id="tensionList"></ul>
+              </div>
+              <div>
+                <h3>Next actions</h3>
+                <ul id="actionList"></ul>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

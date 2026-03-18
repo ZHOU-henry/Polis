@@ -38,3 +38,17 @@ Core contribution:
 
 Peras keeps Polis forward-looking by turning frontier movement into usable
 judgment instead of leaving the umbrella as a static market-and-theory bundle.
+
+## Chorus
+
+Role inside Polis:
+
+- human + agent deliberation rooms
+- visible interaction graphs
+- minority reports and synthesis artifacts
+- public reasoning surfaces
+
+Core contribution:
+
+Chorus gives Polis a live social-reasoning layer where humans and independent
+agents can debate, route evidence, and converge into inspectable conclusions.
