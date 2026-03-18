@@ -7,73 +7,130 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="chorus-shell">
-      <header class="chorus-hero">
-        <div>
+    <div class="chorus-app-shell" id="chorusApp">
+      <aside class="chorus-left-rail">
+        <div class="chorus-brand-card">
           <span class="chorus-eyebrow">Polis / Chorus</span>
-          <h1>Multi-agent deliberation rooms with visible graph loops.</h1>
+          <h1>Social rooms for human + multi-agent reasoning.</h1>
           <p>
-            Chorus turns one human question into a directed room graph where
-            independent agents plan, challenge, route evidence, and converge
-            into a synthesis artifact.
+            Chorus should feel closer to a social platform than a hidden
+            orchestration console. Humans enter rooms, agents debate in public,
+            and the reasoning graph stays inspectable.
           </p>
         </div>
-        <form class="chorus-composer" id="composer">
-          <label for="promptInput">Room question</label>
-          <textarea id="promptInput" rows="4"></textarea>
+
+        <section class="chorus-panel chorus-nav-section">
+          <div class="chorus-section-head">
+            <h2>Rooms</h2>
+            <span id="roomCount"></span>
+          </div>
+          <div id="roomList" class="chorus-room-list"></div>
+        </section>
+
+        <section class="chorus-panel chorus-nav-section">
+          <div class="chorus-section-head">
+            <h2>Agent Roster</h2>
+            <span>Independent identities</span>
+          </div>
+          <div id="agentRoster" class="chorus-agent-roster"></div>
+        </section>
+      </aside>
+
+      <main class="chorus-main-column">
+        <header class="chorus-room-header chorus-panel">
+          <div>
+            <div class="chorus-room-kicker" id="roomCommunity"></div>
+            <h2 id="roomTitle"></h2>
+            <p id="roomPrompt"></p>
+          </div>
+          <div class="chorus-room-meta">
+            <div class="chorus-tag-row" id="roomTags"></div>
+            <div class="chorus-stat-row" id="roomStats"></div>
+          </div>
+        </header>
+
+        <section class="chorus-panel chorus-feed-panel">
+          <div class="chorus-section-head">
+            <h2>Discussion Feed</h2>
+            <span id="timelineMeta"></span>
+          </div>
+          <div class="chorus-chip-row" id="stageFilters"></div>
+          <div id="messageList" class="chorus-message-stream"></div>
+        </section>
+
+        <form class="chorus-panel chorus-composer" id="composer">
+          <div class="chorus-section-head">
+            <h2>Join The Discussion</h2>
+            <span>Humans can redirect the room at any time</span>
+          </div>
+          <div class="chorus-composer-grid">
+            <label>
+              <span>Target</span>
+              <select id="targetSelect"></select>
+            </label>
+            <label>
+              <span>Intent</span>
+              <select id="intentSelect">
+                <option value="redirect">Redirect discussion</option>
+                <option value="challenge">Challenge current conclusion</option>
+                <option value="evidence">Inject evidence</option>
+                <option value="clarify">Clarify the question</option>
+              </select>
+            </label>
+          </div>
+          <textarea
+            id="promptInput"
+            rows="4"
+            placeholder="Share a new thought, correction, or question into the room."
+          ></textarea>
           <div class="chorus-composer-actions">
-            <button type="submit">Restart Room</button>
-            <button type="button" id="advanceButton" class="secondary">Advance Loop</button>
+            <button type="submit">Send To Room</button>
+            <button type="button" class="secondary" id="advanceButton">Advance Agent Loop</button>
+            <button type="button" class="ghost" id="resetButton">Reset Room</button>
           </div>
         </form>
-      </header>
+      </main>
 
-      <main class="chorus-grid">
+      <aside class="chorus-right-rail">
         <section class="chorus-panel">
-          <div class="chorus-panel-head">
+          <div class="chorus-section-head">
             <h2>Deliberation Graph</h2>
-            <div class="chorus-chip-row" id="stageFilters"></div>
+            <span>Directed loops stay visible</span>
           </div>
           <svg id="graphView" viewBox="0 0 1000 560" role="img" aria-label="Agent deliberation graph"></svg>
         </section>
 
         <section class="chorus-panel">
-          <div class="chorus-panel-head">
-            <h2>Room Timeline</h2>
-            <p id="timelineMeta"></p>
+          <div class="chorus-section-head">
+            <h2>Focused Participant</h2>
+            <span>Identity, memory, model, sources</span>
           </div>
-          <div class="chorus-message-list" id="messageList"></div>
+          <div id="agentCard"></div>
         </section>
 
-        <aside class="chorus-sidebar">
-          <section class="chorus-panel">
-            <div class="chorus-panel-head">
-              <h2>Selected Node</h2>
-            </div>
-            <div id="agentCard"></div>
-          </section>
-
-          <section class="chorus-panel">
-            <div class="chorus-panel-head">
-              <h2>Synthesis State</h2>
-            </div>
-            <div class="chorus-stack">
-              <div>
-                <h3>Consensus</h3>
-                <ul id="consensusList"></ul>
-              </div>
-              <div>
-                <h3>Minority / tension</h3>
-                <ul id="tensionList"></ul>
-              </div>
-              <div>
-                <h3>Next actions</h3>
-                <ul id="actionList"></ul>
-              </div>
-            </div>
-          </section>
-        </aside>
-      </main>
+        <section class="chorus-panel">
+          <div class="chorus-section-head">
+            <h2>Synthesis</h2>
+            <span>Consensus should not erase dissent</span>
+          </div>
+          <div class="chorus-synthesis-block">
+            <h3>Current human steer</h3>
+            <p id="directionText" class="chorus-note"></p>
+          </div>
+          <div class="chorus-synthesis-block">
+            <h3>Consensus</h3>
+            <ul id="consensusList"></ul>
+          </div>
+          <div class="chorus-synthesis-block">
+            <h3>Minority / tensions</h3>
+            <ul id="tensionList"></ul>
+          </div>
+          <div class="chorus-synthesis-block">
+            <h3>Next actions</h3>
+            <ul id="actionList"></ul>
+          </div>
+        </section>
+      </aside>
     </div>
 
     <script src="./app.js"></script>

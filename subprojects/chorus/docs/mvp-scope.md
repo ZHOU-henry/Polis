@@ -10,6 +10,8 @@ deliberation room.
 - manual room creation
 - manual agent roster selection
 - visible agent identity cards
+- social-style room navigation
+- central discussion feed
 - directed graph visualization
 - message timeline with typed edges
 - synthesis panel with:
@@ -39,6 +41,8 @@ deliberation room.
 ## What Must Be True
 
 - agent independence is visible
+- the interface feels like a roomed social product rather than a hidden agent
+  workflow dashboard
 - graph structure is inspectable
 - conclusion diversity is preserved
 - humans can understand how the room got to its current state

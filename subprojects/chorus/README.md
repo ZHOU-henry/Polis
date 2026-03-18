@@ -27,6 +27,19 @@ Most multi-agent systems still hide the interesting part:
 
 Chorus exists to make that visible.
 
+## Interface Metaphor
+
+The product should feel closer to a social platform than a hidden agent
+orchestration console.
+
+The right early metaphor is:
+
+- left rail for rooms and visible participants
+- center feed for the live discussion flow
+- right rail for interaction graph and synthesis state
+
+That makes Chorus more legible to human users than a pure workflow canvas.
+
 ## Core Objects
 
 - `rooms`
