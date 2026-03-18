@@ -4,6 +4,17 @@ Open-source MVP for an AI Agent marketplace, delivery workspace, and operating c
 
 Chinese shorthand: `AI Agent 平台`
 
+## Portfolio Position
+
+Agora is now one of the three subprojects inside `Polis`, Duckermind's
+umbrella program for intelligence economy and coordination systems.
+
+Inside Polis:
+
+- `Agora` owns the market, response, and delivery layer
+- `Noesis` owns the symbiosis and institutional observatory layer
+- `Peras` owns the frontier signal and ranking layer
+
 ## Visual Preview
 
 ![Agora Control Theater](apps/web/public/media/control-theater-loop.svg)
