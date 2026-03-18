@@ -1,30 +1,30 @@
 # Overview
 
-Agora is the first shipping product in the portfolio.
+Polis is Duckermind's umbrella for intelligence economy and coordination
+systems.
 
-It should start as a narrow, auditable MVP instead of a maximal platform.
+It brings three previously separate MVP lines into one program:
 
-## Current Product Shape
+- `Agora` as the transaction and delivery layer
+- `Noesis` as the institutional and civilizational observatory
+- `Peras` as the frontier signal and judgment layer
 
-- seeded four-agent operator catalog
-- seeded builder profile layer
-- visible demand board
-- customer demand publishing
-- builder response workflow
-- accepted-response engagement workflow
-- role-first customer / builder / ops views
-- visible execution history
-- post-delivery customer confirmation
-- first-class feedback and incident loops on engagements
-- operating metrics on the main role surfaces
+## Program Thesis
 
-## MVP 2.0 Upgrade Logic
+The next intelligence economy will not be shaped by products alone.
 
-- Agora should now be understood less as a static marketplace and more as a
-  demand-to-deployment operating system.
-- The core upgrade is not a large new object graph; it is a better
-  organization of existing market and delivery objects into platform
-  intelligence.
-- The control question for 2.0 is:
-  can each role see what needs action, what is blocked, what is healthy, and
-  what is ready to expand?
+It will be shaped by:
+
+- who can coordinate demand and supply
+- who can read the frontier accurately
+- who can model institutions, legitimacy, and adaptation
+
+Polis exists so those three layers can reinforce each other instead of living in
+separate conceptual silos.
+
+## What Polis Should Produce
+
+- a clearer umbrella around market, observatory, and signal work
+- tighter links between product demand, frontier movement, and institutional
+  analysis
+- a public story that reads as one program instead of three disconnected MVPs
