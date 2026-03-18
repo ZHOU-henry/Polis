@@ -7,9 +7,8 @@ Chinese shorthand: `智能经济协同`
 
 ## Position
 
-Polis consolidates Duckermind's market platform, social observatory,
-frontier signal work, and multi-agent deliberation layer into one coherent
-intelligence-economy program.
+Polis consolidates Duckermind's market platform, social observatory, and
+frontier signal work into one coherent intelligence-economy program.
 
 ## Repository Host
 
@@ -29,8 +28,6 @@ contents have been copied into `subprojects/noesis/` and `subprojects/peras/`.
     evolution
 - `Peras`
   - frontier signal and ranking engine for where AI value is building next
-- `Chorus`
-  - multi-agent deliberation network for human + agent public reasoning rooms
 
 ## Why This Umbrella Exists
 
@@ -38,8 +35,6 @@ contents have been copied into `subprojects/noesis/` and `subprojects/peras/`.
 - a social observatory without a transactional layer stays detached from real
   adoption
 - a ranking engine without institutional and market context overreads noise
-- a deliberation layer without market, observability, and signal context turns
-  into chat noise
 
 ## Local Structure
 
@@ -47,7 +42,6 @@ contents have been copied into `subprojects/noesis/` and `subprojects/peras/`.
 - `subprojects/agora/`
 - `subprojects/noesis/`
 - `subprojects/peras/`
-- `subprojects/chorus/`
 
 The subprojects are now embedded directly in this repository so future cleanup
 of redundant MVP repositories does not orphan files.
